@@ -25,6 +25,7 @@ class Config:
     DEPLOYMENT: dict = field(default_factory=dict)
     ENV_DATA: dict = field(default_factory=dict)
     RUN: dict = field(default_factory=dict)
+    REPORTING: dict = field(default_factory=dict)
     # Used for multicluster only
     MULTICLUSTER: dict = field(default_factory=dict)
 

@@ -4,3 +4,6 @@ __pycache__
 ven*
 build/*
 .idea
+bin/
+dist
+data/*

@@ -11,10 +11,16 @@
 
 # in this RUN section we will keep default parameters for run of ocp4-mco-ci
 RUN:
-  log_dir: "/tmp"
+  run_id: null  # this will be redefined in the execution
+  cluster_path: "/tmp"
+  bin_dir: './bin'
+  log_dir: "/tmp/log" # relative from cluster_dir
   kubeconfig_location: 'auth/kubeconfig' # relative from cluster_dir
-  username: 'kubeadmin'
-  password_location: 'auth/kubeadmin-password'
+  username: 'kubeadmin' # default user
+  password_location: 'auth/kubeadmin-password' # relative from cluster_dir
+  # If the client version ends with .nightly, the version will be exposed
+  # to the latest accepted OCP nightly build version
+  client_version: '4.12.0-0.nightly'
 
 # In this section we are storing all deployment related configuration but not
 # the environment related data as those are defined in ENV_DATA section.
@@ -22,23 +28,48 @@ DEPLOYMENT:
   # if the installer version ends with .nightly, the version will be exposed
   # to the latest accepted OCP nightly build version. You can also use the
   # specific build version like: "4.2.0-0.nightly-2019-08-06-195545"
-  installer_version: "4.12.0-0.nightly"
-  force_download_installer: True
-  force_download_client: True
-  skip_download_client: False
-  default_latest_tag: 'latest-stable-4.12'
+  installer_version: "4.11.2"
+  force_download_installer: false
+  force_download_client: true
+  skip_download_client: false
+  ssh_key: "~/.ssh/openshift-dev.pub"
+  ssh_key_private: "~/.ssh/openshift-dev.pem"
 
 # This is the default information about environment.
 ENV_DATA:
-  cluster_name: null  # will be changed in ocscilib plugin
+  # OCP
+  cluster_name: 'odf-cluster'
   platform: 'AWS'
-  region: 'us-east-2'
+  region: 'us-east-1'
   master_instance_type: 'm4.xlarge'
   worker_instance_type: 'm5.4xlarge'
+  master_replicas: 3
+  worker_replicas: 3
+  skip_ocp_deployment: false
+  skip_ocs_deployment: false
+  base_domain: 'devcluster.openshift.com'
+  # The subnet prefix length to assign to each individual node.
+  # For example, if hostPrefix is set to 23, then each node is assigned a /23 subnet out of the given cidr,
+  # which allows for 510 (2^(32 - 23) - 2) pod IPs addresses.
+  # https://docs.openshift.com/container-platform/4.1/installing/installing_bare_metal/installing-bare-metal.html
+  cluster_host_prefix: 23
+  cluster_network_cidr: '10.128.0.0/14'
+  service_network_cidr: '172.30.0.0/16'
+
+  # OCS
+  ocs_version: '4.12'
 
 # All Multicluster stuff here
 MULTICLUSTER:
   # Index of this cluster Config in a list of cluster Configs
   multicluster_index: 0
-  acm_cluster: False
-  primary_cluster: False
+  acm_cluster: false
+  primary_cluster: false
+
+# Section for reporting configuration
+REPORTING:
+  email:
+    address: "ocpclusterbot@gmail.com"
+    smtp_server: "smtp.gmail.com"
+    smtp_port: 465,
+    skip_notification: false  # enable this skip email notification

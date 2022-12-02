@@ -3,9 +3,12 @@ import os
 import re
 import sys
 import yaml
+import time
 
 from src import framework
 from src.exceptions.ocp_exceptions import UnSupportedPlatformException
+from src.utility import utils
+from src.deployment.deployment import Deployment
 
 
 def check_config_requirements():
@@ -111,6 +114,8 @@ def init_multicluster_ocp4mcoci_conf(args, nclusters):
     for index in range(nclusters):
         framework.config.switch_ctx(index)
         process_ocp4mcoci_conf(common_argv + multicluster_conf[index][1:])
+        process_cluster_path_conf(common_argv + multicluster_conf[index][1:])
+        process_cluster_name_conf(common_argv + multicluster_conf[index][1:])
         for arg in range(len(multicluster_conf[index][1:])):
             if multicluster_conf[index][arg + 1].startswith("--"):
                 multicluster_conf[index][
@@ -161,8 +166,38 @@ def process_ocp4mcoci_conf(arguments):
     parser.add_argument("--ocp4mcoci-conf", action="append", default=[])
     args, _ = parser.parse_known_args(args=arguments)
     load_config(args.ocp4mcoci_conf)
+    framework.config.RUN["run_id"] = int(time.time())
+    bin_dir = framework.config.RUN.get("bin_dir")
+    if bin_dir:
+        framework.config.update({"RUN" : {"bin_dir": os.path.abspath(
+            os.path.expanduser(framework.config.RUN["bin_dir"])
+        )}})
+        utils.add_path_to_env_path(framework.config.RUN["bin_dir"])
+
+def process_cluster_path_conf(arguments):
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--cluster-path", default='/tmp', help='cluster path to store OCP cluster info')
+    args, _ = parser.parse_known_args(args=arguments)
+    framework.config.update({"RUN": {"cluster_path": args.cluster_path}})
+
+def process_cluster_name_conf(arguments):
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--cluster-name", required=True, help='name of the OCP cluster')
+    args, _ = parser.parse_known_args(args=arguments)
+    framework.config.update({"ENV_DATA": {"cluster_name": args.cluster_name}})
+
+def process_log_level_arg(arguments):
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--log-cli-level", required=False, default='DEBUG', help='OCP installer log level')
+    args, _ = parser.parse_known_args(args=arguments)
+    return args.log_cli_level
 
 def main(argv=None):
     arguments = argv or sys.argv[1:]
     init_ocp4mcoci_conf(arguments)
+    log_cli_level = process_log_level_arg(arguments)
+    ci_logs_dir = utils.ocp4mcoci_log_path(framework.config)
+    utils.create_directory_path(framework.config.RUN["log_dir"])
+    deployment = Deployment(ci_logs_dir, log_cli_level)
+    deployment.run()
 
