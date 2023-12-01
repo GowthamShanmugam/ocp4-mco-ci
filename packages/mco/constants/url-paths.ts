@@ -1,6 +1,5 @@
 // ACM thanos proxy endpoint
-export const ACM_ENDPOINT =
-  '/api/proxy/plugin/odf-multicluster-console/acm-thanos-querier';
+export const ACM_ENDPOINT = '/acm-thanos-querier';
 // ACM thanos dev endpoint
 export const DEV_ACM_ENDPOINT = '/acm-thanos-querier';
 // ACM application details page endpoint

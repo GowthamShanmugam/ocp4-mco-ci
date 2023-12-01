@@ -10,9 +10,9 @@ import {
   VOLUME_REPLICATION_HEALTH,
 } from '@odf/mco/constants';
 import {
-  DrClusterAppsMap,
-  ProtectedAppSetsMap,
-  AppSetObj,
+  DRClusterAppsMap,
+  ProtectedAppMap,
+  AppObj,
   ProtectedPVCData,
   PlacementInfo,
 } from '@odf/mco/types';
@@ -61,7 +61,7 @@ export const StatusText: React.FC<StatusTextProps> = ({ children }) => {
 
 export const VolumeSummarySection: React.FC<VolumeSummarySectionProps> = ({
   protectedPVCData,
-  selectedAppSet,
+  selectedApp,
 }) => {
   const { t } = useCustomTranslation();
   const [summary, setSummary] = React.useState({
@@ -73,7 +73,7 @@ export const VolumeSummarySection: React.FC<VolumeSummarySectionProps> = ({
 
   const updateSummary = React.useCallback(() => {
     const volumeHealth = { critical: 0, warning: 0, healthy: 0 };
-    const placementInfo: PlacementInfo = selectedAppSet?.placementInfo?.[0];
+    const placementInfo: PlacementInfo = selectedApp?.placementInfo?.[0];
     protectedPVCData?.forEach((pvcData) => {
       const pvcLastSyncTime = pvcData?.lastSyncTime;
       const health = getVolumeReplicationHealth(
@@ -82,7 +82,7 @@ export const VolumeSummarySection: React.FC<VolumeSummarySectionProps> = ({
           : LEAST_SECONDS_IN_PROMETHEUS,
         pvcData?.schedulingInterval
       )[0];
-      if (!!selectedAppSet) {
+      if (!!selectedApp) {
         pvcData?.drpcName === placementInfo?.drpcName &&
           pvcData?.drpcNamespace === placementInfo?.drpcNamespace &&
           volumeHealth[health]++;
@@ -91,7 +91,7 @@ export const VolumeSummarySection: React.FC<VolumeSummarySectionProps> = ({
       }
     });
     setSummary(volumeHealth);
-  }, [selectedAppSet, protectedPVCData, setSummary]);
+  }, [selectedApp, protectedPVCData, setSummary]);
 
   React.useEffect(() => {
     updateSummary();
@@ -153,7 +153,7 @@ const ClusterDropdown: React.FC<Partial<ClusterAppDropdownProps>> = ({
   clusterResources,
   clusterName,
   setCluster,
-  setAppSet,
+  setApp,
   className,
 }) => {
   const { t } = useCustomTranslation();
@@ -184,7 +184,7 @@ const ClusterDropdown: React.FC<Partial<ClusterAppDropdownProps>> = ({
     selection: string
   ) => {
     setCluster(selection);
-    setAppSet({
+    setApp({
       namespace: undefined,
       name: ALL_APPS,
     });
@@ -228,23 +228,23 @@ const ClusterDropdown: React.FC<Partial<ClusterAppDropdownProps>> = ({
 const AppDropdown: React.FC<Partial<ClusterAppDropdownProps>> = ({
   clusterResources,
   clusterName,
-  appSet,
-  setAppSet,
+  app,
+  setApp,
   className,
 }) => {
   const { t } = useCustomTranslation();
   const [isOpen, setIsOpen] = React.useState(false);
   const menuRef = React.useRef<HTMLDivElement>(null);
 
-  const { name, namespace } = appSet;
+  const { name, namespace } = app;
   const selected = !namespace ? ALL_APPS_ITEM_ID : `${namespace}%#%${name}`;
 
   const options: AppOptions = React.useMemo(
     () =>
-      clusterResources[clusterName]?.protectedAppSets?.reduce(
-        (acc, protectedAppSet) => {
-          const appName = protectedAppSet?.appName;
-          const appNs = protectedAppSet?.appNamespace;
+      clusterResources[clusterName]?.protectedApps?.reduce(
+        (acc, protectedApp) => {
+          const appName = protectedApp?.appName;
+          const appNs = protectedApp?.appNamespace;
           if (!acc.hasOwnProperty(appNs)) acc[appNs] = [appName];
           else acc[appNs].push(appName);
           return acc;
@@ -263,7 +263,7 @@ const AppDropdown: React.FC<Partial<ClusterAppDropdownProps>> = ({
     itemId: string
   ) => {
     const [itemNamespace, itemName] = getNSAndNameFromId(itemId);
-    setAppSet({ namespace: itemNamespace, name: itemName });
+    setApp({ namespace: itemNamespace, name: itemName });
     setIsOpen(false);
   };
 
@@ -318,9 +318,9 @@ const AppDropdown: React.FC<Partial<ClusterAppDropdownProps>> = ({
 export const ClusterAppDropdown: React.FC<ClusterAppDropdownProps> = ({
   clusterResources,
   clusterName,
-  appSet,
+  app,
   setCluster,
-  setAppSet,
+  setApp,
 }) => {
   return (
     <Flex direction={{ default: 'column', sm: 'row' }}>
@@ -329,7 +329,7 @@ export const ClusterAppDropdown: React.FC<ClusterAppDropdownProps> = ({
           clusterResources={clusterResources}
           clusterName={clusterName}
           setCluster={setCluster}
-          setAppSet={setAppSet}
+          setApp={setApp}
           className="mco-cluster-app__dropdown--padding"
         />
       </FlexItem>
@@ -337,8 +337,8 @@ export const ClusterAppDropdown: React.FC<ClusterAppDropdownProps> = ({
         <AppDropdown
           clusterResources={clusterResources}
           clusterName={clusterName}
-          appSet={appSet}
-          setAppSet={setAppSet}
+          app={app}
+          setApp={setApp}
         />
       </FlexItem>
     </Flex>
@@ -347,7 +347,7 @@ export const ClusterAppDropdown: React.FC<ClusterAppDropdownProps> = ({
 
 export const ProtectedPVCsSection: React.FC<ProtectedPVCsSectionProps> = ({
   protectedPVCData,
-  selectedAppSet,
+  selectedApp,
 }) => {
   const { t } = useCustomTranslation();
   const clearSetIntervalId = React.useRef<NodeJS.Timeout>();
@@ -355,7 +355,7 @@ export const ProtectedPVCsSection: React.FC<ProtectedPVCsSectionProps> = ({
   const [protectedPVCsCount, pvcsWithIssueCount] = protectedPVC;
 
   const updateProtectedPVC = React.useCallback(() => {
-    const placementInfo = selectedAppSet?.placementInfo?.[0];
+    const placementInfo = selectedApp?.placementInfo?.[0];
     const issueCount =
       protectedPVCData?.reduce((acc, protectedPVCItem) => {
         const pvcLastSyncTime = protectedPVCItem?.lastSyncTime;
@@ -366,7 +366,7 @@ export const ProtectedPVCsSection: React.FC<ProtectedPVCsSectionProps> = ({
           protectedPVCItem?.schedulingInterval
         )[0];
 
-        (!!selectedAppSet
+        (!!selectedApp
           ? protectedPVCItem?.drpcName === placementInfo?.drpcName &&
             protectedPVCItem?.drpcNamespace === placementInfo?.drpcNamespace &&
             replicationHealth !== VOLUME_REPLICATION_HEALTH.HEALTHY
@@ -375,7 +375,7 @@ export const ProtectedPVCsSection: React.FC<ProtectedPVCsSectionProps> = ({
         return acc;
       }, 0) || 0;
     setProtectedPVC([protectedPVCData?.length || 0, issueCount]);
-  }, [selectedAppSet, protectedPVCData, setProtectedPVC]);
+  }, [selectedApp, protectedPVCData, setProtectedPVC]);
 
   React.useEffect(() => {
     updateProtectedPVC();
@@ -399,23 +399,23 @@ export const ProtectedPVCsSection: React.FC<ProtectedPVCsSectionProps> = ({
 
 type ProtectedPVCsSectionProps = {
   protectedPVCData: ProtectedPVCData[];
-  selectedAppSet?: ProtectedAppSetsMap;
+  selectedApp?: ProtectedAppMap;
 };
 
 type VolumeSummarySectionProps = {
   protectedPVCData: ProtectedPVCData[];
-  selectedAppSet?: ProtectedAppSetsMap;
+  selectedApp?: ProtectedAppMap;
 };
 
 type ClusterAppDropdownProps = {
-  clusterResources: DrClusterAppsMap;
+  clusterResources: DRClusterAppsMap;
   clusterName: string;
-  appSet: {
+  app: {
     name: string;
     namespace: string;
   };
   setCluster: React.Dispatch<React.SetStateAction<string>>;
-  setAppSet: React.Dispatch<React.SetStateAction<AppSetObj>>;
+  setApp: React.Dispatch<React.SetStateAction<AppObj>>;
   className?: string;
 };
 

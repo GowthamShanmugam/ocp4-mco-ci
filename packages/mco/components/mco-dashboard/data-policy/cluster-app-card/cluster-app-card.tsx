@@ -5,9 +5,9 @@ import {
   applicationDetails,
 } from '@odf/mco/constants';
 import {
-  DrClusterAppsMap,
-  AppSetObj,
-  ProtectedAppSetsMap,
+  DRClusterAppsMap,
+  AppObj,
+  ProtectedAppMap,
   ACMManagedClusterViewKind,
   ProtectedPVCData,
   MirrorPeerKind,
@@ -38,7 +38,7 @@ import {
 } from '../../../../models';
 import {
   getProtectedPVCFromVRG,
-  filterPVCDataUsingAppsets,
+  filterPVCDataUsingApps,
 } from '../../../../utils';
 import { getLastSyncPerClusterQuery } from '../../queries';
 import {
@@ -113,26 +113,26 @@ export const ClusterWiseCard: React.FC<ClusterWiseCardProps> = ({
 
 export const AppWiseCard: React.FC<AppWiseCardProps> = ({
   protectedPVCData,
-  selectedAppSet,
+  selectedApp,
 }) => {
   return (
     <Grid hasGutter>
       <GridItem lg={12} rowSpan={8} sm={12}>
         <ProtectedPVCsSection
           protectedPVCData={protectedPVCData}
-          selectedAppSet={selectedAppSet}
+          selectedApp={selectedApp}
         />
       </GridItem>
       <GridItem lg={3} rowSpan={8} sm={12}>
-        <ActivitySection selectedAppSet={selectedAppSet} />
+        <ActivitySection selectedApp={selectedApp} />
       </GridItem>
       <GridItem lg={9} rowSpan={8} sm={12}>
-        <SnapshotSection selectedAppSet={selectedAppSet} />
+        <SnapshotSection selectedApp={selectedApp} />
       </GridItem>
       <GridItem lg={12} rowSpan={8} sm={12}>
         <VolumeSummarySection
           protectedPVCData={protectedPVCData}
-          selectedAppSet={selectedAppSet}
+          selectedApp={selectedApp}
         />
       </GridItem>
     </Grid>
@@ -141,7 +141,7 @@ export const AppWiseCard: React.FC<AppWiseCardProps> = ({
 
 export const ClusterAppCard: React.FC = () => {
   const [cluster, setCluster] = React.useState<string>();
-  const [appSet, setAppSet] = React.useState<AppSetObj>({
+  const [app, setApp] = React.useState<AppObj>({
     namespace: undefined,
     name: ALL_APPS,
   });
@@ -170,39 +170,32 @@ export const ClusterAppCard: React.FC = () => {
   const allLoaded = loaded && !csvLoading && !lastSyncTimeLoading && mcvsLoaded;
   const anyError = lastSyncTimeError || csvError || loadError || mcvsLoadError;
 
-  const selectedAppSet: ProtectedAppSetsMap = React.useMemo(() => {
-    const { name, namespace } = appSet || {};
+  const selectedApp: ProtectedAppMap = React.useMemo(() => {
+    const { name, namespace } = app || {};
     return !!namespace && name !== ALL_APPS
-      ? drClusterAppsMap[cluster]?.protectedAppSets?.find(
-          (protectedAppSet) =>
-            protectedAppSet?.appName === name &&
-            protectedAppSet?.appNamespace === namespace
+      ? drClusterAppsMap[cluster]?.protectedApps?.find(
+          (protectedApp) =>
+            protectedApp?.appName === name &&
+            protectedApp?.appNamespace === namespace
         )
       : undefined;
-  }, [appSet, drClusterAppsMap, cluster]);
+  }, [app, drClusterAppsMap, cluster]);
 
   const protectedPVCData: ProtectedPVCData[] = React.useMemo(() => {
     const pvcsData =
       (mcvsLoaded && !mcvsLoadError && getProtectedPVCFromVRG(mcvs)) || [];
-    const protectedAppSets = !!selectedAppSet
-      ? [selectedAppSet]
-      : drClusterAppsMap[cluster]?.protectedAppSets;
-    return filterPVCDataUsingAppsets(pvcsData, protectedAppSets);
-  }, [
-    drClusterAppsMap,
-    selectedAppSet,
-    cluster,
-    mcvs,
-    mcvsLoaded,
-    mcvsLoadError,
-  ]);
-  const apiVersion = `${selectedAppSet?.appKind?.toLowerCase()}.${
-    selectedAppSet?.appAPIVersion?.split('/')[0]
+    const protectedApps = !!selectedApp
+      ? [selectedApp]
+      : drClusterAppsMap[cluster]?.protectedApps;
+    return filterPVCDataUsingApps(pvcsData, protectedApps);
+  }, [drClusterAppsMap, selectedApp, cluster, mcvs, mcvsLoaded, mcvsLoadError]);
+  const apiVersion = `${selectedApp?.appKind?.toLowerCase()}.${
+    selectedApp?.appAPIVersion?.split('/')[0]
   }`;
   const applicationDetailsPath =
     applicationDetails
-      .replace(':namespace', appSet.namespace)
-      .replace(':name', appSet.name) +
+      .replace(':namespace', app.namespace)
+      .replace(':name', app.name) +
     '?apiVersion=' +
     apiVersion;
 
@@ -215,17 +208,17 @@ export const ClusterAppCard: React.FC = () => {
               <ClusterAppDropdown
                 clusterResources={drClusterAppsMap}
                 clusterName={cluster}
-                appSet={appSet}
+                app={app}
                 setCluster={setCluster}
-                setAppSet={setAppSet}
+                setApp={setApp}
               />
               <CardTitle className="mco-cluster-app__text--margin-top mco-cluster-app__headerText--size">
-                {!!appSet.namespace ? (
+                {!!app.namespace ? (
                   <Link
                     id="app-search-argo-apps-link"
                     to={applicationDetailsPath}
                   >
-                    {appSet.name}
+                    {app.name}
                   </Link>
                 ) : (
                   cluster
@@ -234,7 +227,7 @@ export const ClusterAppCard: React.FC = () => {
             </div>
           </CardHeader>
           <CardBody>
-            {!appSet.namespace && appSet.name === ALL_APPS ? (
+            {!app.namespace && app.name === ALL_APPS ? (
               <ClusterWiseCard
                 clusterName={cluster}
                 lastSyncTimeData={lastSyncTimeData}
@@ -245,7 +238,7 @@ export const ClusterAppCard: React.FC = () => {
             ) : (
               <AppWiseCard
                 protectedPVCData={protectedPVCData}
-                selectedAppSet={selectedAppSet}
+                selectedApp={selectedApp}
               />
             )}
           </CardBody>
@@ -268,10 +261,10 @@ type ClusterWiseCardProps = {
   lastSyncTimeData: PrometheusResponse;
   protectedPVCData: ProtectedPVCData[];
   csvData: PrometheusResponse;
-  clusterResources: DrClusterAppsMap;
+  clusterResources: DRClusterAppsMap;
 };
 
 type AppWiseCardProps = {
   protectedPVCData: ProtectedPVCData[];
-  selectedAppSet: ProtectedAppSetsMap;
+  selectedApp: ProtectedAppMap;
 };

@@ -1,50 +1,23 @@
 import * as React from 'react';
 import { useCustomPrometheusPoll } from '@odf/shared/hooks/custom-prometheus-poll';
-import { getName, getNamespace } from '@odf/shared/selectors';
-import * as _ from 'lodash-es';
+import { useK8sWatchResources } from '@openshift-console/dynamic-plugin-sdk';
+import { ACMManagedClusterKind, DRClusterAppsMap } from 'packages/mco/types';
 import { Grid, GridItem } from '@patternfly/react-core';
+import { ACM_ENDPOINT, HUB_CLUSTER_NAME } from '../../../constants';
 import {
-  ACM_ENDPOINT,
-  APPLICATION_TYPE,
-  DRPC_STATUS,
-  HUB_CLUSTER_NAME,
-} from '../../../constants';
-import {
-  DisasterRecoveryResourceKind,
-  useArgoApplicationSetResourceWatch,
+  getManagedClusterResourceObj,
   useDisasterRecoveryResourceWatch,
 } from '../../../hooks';
-import {
-  DRClusterKind,
-  ACMManagedClusterKind,
-  DrClusterAppsMap,
-} from '../../../types';
-import {
-  findDRType,
-  findDeploymentClusters,
-  getProtectedPVCsFromDRPC,
-  getRemoteNamespaceFromAppSet,
-} from '../../../utils';
 import { StorageDashboard, STATUS_QUERIES } from '../queries';
 import { AlertsCard } from './alert-card/alert-card';
 import { ClusterAppCard } from './cluster-app-card/cluster-app-card';
 import { CSVStatusesContext, DRResourcesContext } from './dr-dashboard-context';
+import { useApplicationSetParser } from './parsers/applicationset-parser';
+import { useSubscriptionParser } from './parsers/subscription-parser';
 import { StatusCard } from './status-card/status-card';
 import { SummaryCard } from './summary-card/summary-card';
 import '../mco-dashboard.scss';
 import '../../../style.scss';
-
-const getApplicationSetResources = (
-  drResources: DisasterRecoveryResourceKind,
-  drLoaded: boolean,
-  drLoadError: any
-) => ({
-  drResources: {
-    data: drResources,
-    loaded: drLoaded,
-    loadError: drLoadError,
-  },
-});
 
 const UpperSection: React.FC = () => (
   <Grid hasGutter>
@@ -63,7 +36,30 @@ const UpperSection: React.FC = () => (
   </Grid>
 );
 
-export const DRDashboard: React.FC = () => {
+const aggregateApplicationData = (
+  clusterAppsList: DRClusterAppsMap[]
+): DRClusterAppsMap =>
+  clusterAppsList.reduce((acc, clusterAppsMap) => {
+    Object.keys(clusterAppsMap).forEach((clusterName) => {
+      const { managedCluster, totalAppCount, protectedApps } =
+        clusterAppsMap[clusterName];
+
+      if (!acc.hasOwnProperty(clusterName)) {
+        acc[clusterName] = {
+          managedCluster: managedCluster,
+          totalAppCount: totalAppCount,
+          protectedApps: protectedApps,
+        };
+      } else {
+        acc[clusterName].totalAppCount += totalAppCount;
+        acc[clusterName].protectedApps =
+          acc[clusterName].protectedApps.concat(protectedApps);
+      }
+    });
+    return acc;
+  }, {});
+
+const DRDashboard: React.FC = () => {
   const [csvData, csvError, csvLoading] = useCustomPrometheusPoll({
     endpoint: 'api/v1/query' as any,
     query: STATUS_QUERIES[StorageDashboard.CSV_STATUS_ALL_WHITELISTED],
@@ -73,91 +69,49 @@ export const DRDashboard: React.FC = () => {
 
   const [drResources, drLoaded, drLoadError] =
     useDisasterRecoveryResourceWatch();
-  const [argoApplicationSetResources, loaded, loadError] =
-    useArgoApplicationSetResourceWatch(
-      getApplicationSetResources(drResources, drLoaded, drLoadError)
+
+  const managedClusterResponse = useK8sWatchResources<{
+    managedClusters: ACMManagedClusterKind;
+  }>({
+    managedClusters: getManagedClusterResourceObj(),
+  }).managedClusters;
+
+  const [subscriptionData, subscriptionDataLoaded, subscriptionDataLoadError] =
+    useSubscriptionParser(
+      drResources,
+      managedClusterResponse,
+      drLoaded,
+      drLoadError
     );
 
-  const drClusters: DRClusterKind[] = drResources?.drClusters;
-  const managedClusters: ACMManagedClusterKind[] =
-    argoApplicationSetResources?.managedClusters;
-  const formattedArgoAppSetResources =
-    argoApplicationSetResources?.formattedResources;
+  const [
+    applicationSetData,
+    applicationSetDataLoaded,
+    applicationSetDataLoadError,
+  ] = useApplicationSetParser(
+    drResources,
+    managedClusterResponse,
+    drLoaded,
+    drLoadError
+  );
 
-  const drClusterAppsMap: DrClusterAppsMap = React.useMemo(() => {
-    if (loaded && !loadError) {
-      // DRCluster to its ManagedCluster mapping
-      const drClusterAppsMap: DrClusterAppsMap = drClusters.reduce(
-        (acc, drCluster) => {
-          acc[getName(drCluster)] = {
-            managedCluster: managedClusters.find(
-              (managedCluster) => getName(managedCluster) === getName(drCluster)
-            ),
-            totalAppSetsCount: 0,
-            protectedAppSets: [],
-          };
-          return acc;
-        },
-        {} as DrClusterAppsMap
-      );
+  const [drClusterAppsMap, setDrClusterAppsMap] =
+    React.useState<DRClusterAppsMap>({});
 
-      // DRCluster to its ApplicationSets (total and protected) mapping
-      formattedArgoAppSetResources.forEach((argoApplicationSetResource) => {
-        const { application } = argoApplicationSetResource || {};
-        const {
-          drClusters: currentDrClusters,
-          drPlacementControl,
-          drPolicy,
-          placementDecision,
-        } = argoApplicationSetResource?.placements?.[0] || {};
-        const deploymentClusters = findDeploymentClusters(
-          placementDecision,
-          drPlacementControl
-        );
-        deploymentClusters.forEach((decisionCluster) => {
-          if (drClusterAppsMap.hasOwnProperty(decisionCluster)) {
-            drClusterAppsMap[decisionCluster].totalAppSetsCount =
-              drClusterAppsMap[decisionCluster].totalAppSetsCount + 1;
-            if (!_.isEmpty(drPlacementControl)) {
-              drClusterAppsMap[decisionCluster].protectedAppSets.push({
-                appName: getName(application),
-                appNamespace: getNamespace(application),
-                appKind: application?.kind,
-                appAPIVersion: application?.apiVersion,
-                appType: APPLICATION_TYPE.APPSET,
-                placementInfo: [
-                  {
-                    deploymentClusterName: decisionCluster,
-                    drpcName: getName(drPlacementControl),
-                    drpcNamespace: getNamespace(drPlacementControl),
-                    protectedPVCs: getProtectedPVCsFromDRPC(drPlacementControl),
-                    replicationType: findDRType(currentDrClusters),
-                    syncInterval: drPolicy?.spec?.schedulingInterval,
-                    workloadNamespace:
-                      getRemoteNamespaceFromAppSet(application),
-                    failoverCluster: drPlacementControl?.spec?.failoverCluster,
-                    preferredCluster:
-                      drPlacementControl?.spec?.preferredCluster,
-                    lastGroupSyncTime:
-                      drPlacementControl?.status?.lastGroupSyncTime,
-                    status: drPlacementControl?.status?.phase as DRPC_STATUS,
-                  },
-                ],
-              });
-            }
-          }
-        });
-      });
-      return drClusterAppsMap;
+  const loaded = applicationSetDataLoaded && subscriptionDataLoaded;
+  const loadError = applicationSetDataLoadError || subscriptionDataLoadError;
+
+  React.useEffect(() => {
+    if (subscriptionData && applicationSetData && !!loaded && !loadError) {
+      const aggregatedData = aggregateApplicationData([
+        subscriptionData,
+        applicationSetData,
+        // Add new application parser data
+      ]);
+
+      setDrClusterAppsMap(aggregatedData);
     }
-    return {};
-  }, [
-    drClusters,
-    managedClusters,
-    formattedArgoAppSetResources,
-    loaded,
-    loadError,
-  ]);
+  }, [subscriptionData, applicationSetData, loaded, loadError]);
 
   const dRResourcesContext = {
     drClusterAppsMap,
@@ -165,8 +119,6 @@ export const DRDashboard: React.FC = () => {
     loadError,
   };
 
-  // ToDo(Sanjal): combime multiple Context together to make it scalable
-  // refer: https://javascript.plainenglish.io/how-to-combine-context-providers-for-cleaner-react-code-9ed24f20225e
   return (
     <div className="odf-dashboard-body">
       <CSVStatusesContext.Provider value={{ csvData, csvError, csvLoading }}>

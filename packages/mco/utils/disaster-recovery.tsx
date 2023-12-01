@@ -60,7 +60,7 @@ import {
   ACMManagedClusterViewKind,
   DRVolumeReplicationGroupKind,
   ProtectedPVCData,
-  ProtectedAppSetsMap,
+  ProtectedAppMap,
   ACMPlacementDecisionKind,
   ACMPlacementKind,
   MirrorPeerKind,
@@ -136,6 +136,12 @@ export const matchApplicationToSubscription = (
   });
   return valid;
 };
+
+export const getAppUniqueId = (
+  name: string,
+  namespace: string,
+  clusterName: string
+) => `${name}%${namespace}%${clusterName}`;
 
 export const getPlacementUniqueId = (name: string, namespace: string, kind) =>
   `${name}%${namespace}%${kind}`;
@@ -495,14 +501,14 @@ export const getProtectedPVCFromVRG = (
   }, []);
 };
 
-export const filterPVCDataUsingAppsets = (
+export const filterPVCDataUsingApps = (
   pvcsData: ProtectedPVCData[],
-  protectedAppsets: ProtectedAppSetsMap[]
+  protectedApps: ProtectedAppMap[]
 ) =>
   pvcsData?.filter(
     (pvcData) =>
-      !!protectedAppsets?.find((appSet) => {
-        const placementInfo = appSet?.placementInfo?.[0];
+      !!protectedApps?.find((app) => {
+        const placementInfo = app?.placementInfo?.[0];
         const result =
           placementInfo?.drpcName === pvcData?.drpcName &&
           placementInfo?.drpcNamespace === pvcData?.drpcNamespace;
@@ -619,6 +625,11 @@ export const getLastAppDeploymentClusterName = (
   getAnnotations(drPlacementControl)?.[
     LAST_APP_DEPLOYMENT_CLUSTER_ANNOTATION
   ] || '';
+
+export const getAllDecisions = (placement) =>
+  placement?.status?.decisionGroups.flatMap((group) =>
+    group?.decisions.map((decision) => decision)
+  ) || [];
 
 export const findDeploymentClusters = (
   placementDecision: ACMPlacementDecisionKind,
