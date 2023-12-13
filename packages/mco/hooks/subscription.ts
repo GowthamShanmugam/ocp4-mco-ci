@@ -339,7 +339,7 @@ type SubscriptionGroupType = {
   drInfo?: DRInfoType;
 };
 
-type ApplicationDeploymentInfo = {
+export type ApplicationDeploymentInfo = {
   application: ApplicationKind;
   subscriptionGroupInfo: SubscriptionGroupType[];
   managedClusters?: ACMManagedClusterKind[];

@@ -71,7 +71,7 @@ const DRDashboard: React.FC = () => {
     useDisasterRecoveryResourceWatch();
 
   const managedClusterResponse = useK8sWatchResources<{
-    managedClusters: ACMManagedClusterKind;
+    managedClusters: ACMManagedClusterKind[];
   }>({
     managedClusters: getManagedClusterResourceObj(),
   }).managedClusters;

@@ -3,6 +3,7 @@ import {
   HUB_CLUSTER_NAME,
   ALL_APPS,
   applicationDetails,
+  APPLICATION_TYPE,
 } from '@odf/mco/constants';
 import {
   DRClusterAppsMap,
@@ -13,6 +14,7 @@ import {
   MirrorPeerKind,
 } from '@odf/mco/types';
 import { getClusterNamesFromMirrorPeers } from '@odf/mco/utils';
+import { useCustomTranslation } from '@odf/shared';
 import { DataUnavailableError } from '@odf/shared/generic/Error';
 import {
   useCustomPrometheusPoll,
@@ -31,6 +33,7 @@ import {
   CardTitle,
   Grid,
   GridItem,
+  Text,
 } from '@patternfly/react-core';
 import {
   ACMManagedClusterViewModel,
@@ -45,7 +48,12 @@ import {
   CSVStatusesContext,
   DRResourcesContext,
 } from '../dr-dashboard-context';
-import { ActivitySection, SnapshotSection } from './argo-application-set';
+import {
+  ActivitySection,
+  SnapshotSection,
+  SubscriptionDetailsSection,
+  SubscriptionSection,
+} from './argo-application-set';
 import {
   HealthSection,
   PeerConnectionSection,
@@ -59,7 +67,63 @@ import {
 } from './common';
 import './cluster-app-card.scss';
 
-export const ClusterWiseCard: React.FC<ClusterWiseCardProps> = ({
+const ApplicationSetAppCard: React.FC<AppWiseCardProps> = ({
+  protectedPVCData,
+  selectedApp,
+}) => {
+  return (
+    <Grid hasGutter>
+      <GridItem lg={12} rowSpan={8} sm={12}>
+        <ProtectedPVCsSection
+          protectedPVCData={protectedPVCData}
+          selectedApp={selectedApp}
+        />
+      </GridItem>
+      <GridItem lg={3} rowSpan={8} sm={12}>
+        <ActivitySection selectedApp={selectedApp} />
+      </GridItem>
+      <GridItem lg={9} rowSpan={8} sm={12}>
+        <SnapshotSection selectedApp={selectedApp} />
+      </GridItem>
+      <GridItem lg={12} rowSpan={8} sm={12}>
+        <VolumeSummarySection
+          protectedPVCData={protectedPVCData}
+          selectedApp={selectedApp}
+        />
+      </GridItem>
+    </Grid>
+  );
+};
+
+const SubscriptionSetAppCard: React.FC<AppWiseCardProps> = ({
+  protectedPVCData,
+  selectedApp,
+}) => {
+  return (
+    <Grid hasGutter>
+      <GridItem lg={3} rowSpan={8} sm={12}>
+        <ProtectedPVCsSection
+          protectedPVCData={protectedPVCData}
+          selectedApp={selectedApp}
+        />
+      </GridItem>
+      <GridItem lg={9} rowSpan={8} sm={12}>
+        <SubscriptionSection selectedApp={selectedApp} />
+      </GridItem>
+      <GridItem lg={12} rowSpan={8} sm={12}>
+        <SubscriptionDetailsSection selectedApp={selectedApp} />
+      </GridItem>
+      <GridItem lg={12} rowSpan={8} sm={12}>
+        <VolumeSummarySection
+          protectedPVCData={protectedPVCData}
+          selectedApp={selectedApp}
+        />
+      </GridItem>
+    </Grid>
+  );
+};
+
+const ClusterWiseCard: React.FC<ClusterWiseCardProps> = ({
   clusterName,
   lastSyncTimeData,
   protectedPVCData,
@@ -111,31 +175,49 @@ export const ClusterWiseCard: React.FC<ClusterWiseCardProps> = ({
   );
 };
 
-export const AppWiseCard: React.FC<AppWiseCardProps> = ({
-  protectedPVCData,
-  selectedApp,
+const AppWiseCard: React.FC<AppWiseCardProps> = (props) => {
+  const { appType } = props?.selectedApp;
+  switch (appType) {
+    case APPLICATION_TYPE.APPSET:
+      return <ApplicationSetAppCard {...props} />;
+    case APPLICATION_TYPE.SUBSCRIPTION:
+      return <SubscriptionSetAppCard {...props} />;
+    default:
+      return <></>;
+  }
+};
+
+const ClusterAppCardTitle: React.FC<ClusterAppCardTitleProps> = ({
+  app,
+  appKind,
+  appAPIVersion,
+  appType,
+  cluster,
 }) => {
-  return (
-    <Grid hasGutter>
-      <GridItem lg={12} rowSpan={8} sm={12}>
-        <ProtectedPVCsSection
-          protectedPVCData={protectedPVCData}
-          selectedApp={selectedApp}
-        />
-      </GridItem>
-      <GridItem lg={3} rowSpan={8} sm={12}>
-        <ActivitySection selectedApp={selectedApp} />
-      </GridItem>
-      <GridItem lg={9} rowSpan={8} sm={12}>
-        <SnapshotSection selectedApp={selectedApp} />
-      </GridItem>
-      <GridItem lg={12} rowSpan={8} sm={12}>
-        <VolumeSummarySection
-          protectedPVCData={protectedPVCData}
-          selectedApp={selectedApp}
-        />
-      </GridItem>
-    </Grid>
+  const { t } = useCustomTranslation();
+  const apiVersion = `${appKind?.toLowerCase()}.${
+    appAPIVersion?.split('/')[0]
+  }`;
+  const applicationDetailsPath =
+    applicationDetails
+      .replace(':namespace', app.namespace)
+      .replace(':name', app.name) +
+    '?apiVersion=' +
+    apiVersion;
+  return !!app.namespace ? (
+    <div>
+      <Text className="mco-cluster-app__headerText--size mco-dashboard__statusText--margin">
+        {t('Application: ')}
+        <Link id="app-search-argo-apps-link" to={applicationDetailsPath}>
+          {app.name}
+        </Link>
+      </Text>
+      <Text className="mco-dashboard__statusText--margin">
+        {t('Type: {{type}}', { type: appType })}
+      </Text>
+    </div>
+  ) : (
+    <>{cluster}</>
   );
 };
 
@@ -189,15 +271,6 @@ export const ClusterAppCard: React.FC = () => {
       : drClusterAppsMap[cluster]?.protectedApps;
     return filterPVCDataUsingApps(pvcsData, protectedApps);
   }, [drClusterAppsMap, selectedApp, cluster, mcvs, mcvsLoaded, mcvsLoadError]);
-  const apiVersion = `${selectedApp?.appKind?.toLowerCase()}.${
-    selectedApp?.appAPIVersion?.split('/')[0]
-  }`;
-  const applicationDetailsPath =
-    applicationDetails
-      .replace(':namespace', app.namespace)
-      .replace(':name', app.name) +
-    '?apiVersion=' +
-    apiVersion;
 
   return (
     <Card data-test="cluster-app-card">
@@ -212,17 +285,14 @@ export const ClusterAppCard: React.FC = () => {
                 setCluster={setCluster}
                 setApp={setApp}
               />
-              <CardTitle className="mco-cluster-app__text--margin-top mco-cluster-app__headerText--size">
-                {!!app.namespace ? (
-                  <Link
-                    id="app-search-argo-apps-link"
-                    to={applicationDetailsPath}
-                  >
-                    {app.name}
-                  </Link>
-                ) : (
-                  cluster
-                )}
+              <CardTitle className="mco-cluster-app__text--margin-top">
+                <ClusterAppCardTitle
+                  app={app}
+                  cluster={cluster}
+                  appKind={selectedApp?.appKind}
+                  appType={selectedApp?.appType}
+                  appAPIVersion={selectedApp?.appAPIVersion}
+                />
               </CardTitle>
             </div>
           </CardHeader>
@@ -267,4 +337,12 @@ type ClusterWiseCardProps = {
 type AppWiseCardProps = {
   protectedPVCData: ProtectedPVCData[];
   selectedApp: ProtectedAppMap;
+};
+
+type ClusterAppCardTitleProps = {
+  app: AppObj;
+  cluster: string;
+  appKind: string;
+  appAPIVersion: string;
+  appType: APPLICATION_TYPE;
 };

@@ -21,13 +21,12 @@ import * as _ from 'lodash-es';
 
 export const useApplicationSetParser = (
   drResources: DisasterRecoveryResourceKind,
-  managedClusters: WatchK8sResultsObject<ACMManagedClusterKind>,
+  managedClusters: WatchK8sResultsObject<ACMManagedClusterKind[]>,
   drLoaded: boolean,
   drLoadError: any
 ): [DRClusterAppsMap, boolean, any] => {
   const [argoApplicationSetResources, loaded, loadError] =
     useArgoApplicationSetResourceWatch({
-      overrides: { managedClusters: managedClusters },
       drResources: {
         data: drResources,
         loaded: drLoaded,

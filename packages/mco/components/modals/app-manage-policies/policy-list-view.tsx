@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { getPageRange } from '@odf/mco/utils';
 import { ActionDropdown } from '@odf/shared/dropdown/action-dropdown';
 import { ModalBody } from '@odf/shared/modals/Modal';
 import { getName } from '@odf/shared/selectors';
@@ -38,12 +39,6 @@ import './style.scss';
 
 const INITIAL_PAGE_NUMBER = 1;
 const COUNT_PER_PAGE_NUMBER = 4;
-
-const getRange = (currentPage: number, perPage: number) => {
-  const indexOfLastRow = currentPage * perPage;
-  const indexOfFirstRow = indexOfLastRow - perPage;
-  return [indexOfFirstRow, indexOfLastRow];
-};
 
 const filterPolicies = (dataPolicyInfo: DataPolicyType[], searchText: string) =>
   dataPolicyInfo.filter((policy) =>
@@ -130,7 +125,7 @@ export const PolicyListView: React.FC<PolicyListViewProps> = ({
   const [page, setPage] = React.useState(INITIAL_PAGE_NUMBER);
   const [perPage, setPerPage] = React.useState(COUNT_PER_PAGE_NUMBER);
   const [searchText, onSearchChange] = React.useState('');
-  const [start, end] = getRange(page, perPage);
+  const [start, end] = getPageRange(page, perPage);
   const policies = filterPolicies(dataPolicyInfo, searchText) || [];
   const paginatedPolicies = policies.slice(start, end);
   const unFilteredAssignedPolicyLength = dataPolicyInfo.length;

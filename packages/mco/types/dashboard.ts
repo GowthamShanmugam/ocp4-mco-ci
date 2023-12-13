@@ -13,6 +13,8 @@ export type PlacementInfo = Partial<{
   lastGroupSyncTime: string;
   status: DRPC_STATUS;
   protectedPVCs: string[];
+  // Only applicable for Subscription type
+  subscriptions?: string[];
 }>;
 
 export type ProtectedAppMap = {

@@ -30,3 +30,9 @@ export const getMajorVersion = (version: string): string => {
     ? version.split('.')[0] + '.' + version.split('.')[1] + '.0'
     : '';
 };
+
+export const getPageRange = (currentPage: number, perPage: number) => {
+  const indexOfLastRow = currentPage * perPage;
+  const indexOfFirstRow = indexOfLastRow - perPage;
+  return [indexOfFirstRow, indexOfLastRow];
+};

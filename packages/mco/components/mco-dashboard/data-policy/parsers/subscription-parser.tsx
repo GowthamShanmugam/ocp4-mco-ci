@@ -3,6 +3,7 @@ import { APPLICATION_TYPE, DRPC_STATUS } from '@odf/mco/constants';
 import {
   DisasterRecoveryResourceKind,
   useSubscriptionResourceWatch,
+  ApplicationDeploymentInfo,
 } from '@odf/mco/hooks';
 import {
   ACMManagedClusterKind,
@@ -21,13 +22,12 @@ import * as _ from 'lodash-es';
 
 export const useSubscriptionParser = (
   drResources: DisasterRecoveryResourceKind,
-  managedClusters: WatchK8sResultsObject<ACMManagedClusterKind>,
+  managedClusters: WatchK8sResultsObject<ACMManagedClusterKind[]>,
   drLoaded: boolean,
   drLoadError: any
 ): [DRClusterAppsMap, boolean, any] => {
   const [subscriptionResources, loaded, loadError] =
     useSubscriptionResourceWatch({
-      overrides: { managedClusters },
       drResources: {
         data: drResources,
         loaded: drLoaded,
@@ -39,9 +39,6 @@ export const useSubscriptionParser = (
   const drClusterAppsMap: DRClusterAppsMap = React.useMemo(() => {
     if (loaded && !loadError) {
       const uniqueAppKeys = new Set<string>();
-      const managedClusterList = Array.isArray(managedClusters.data)
-        ? managedClusters.data
-        : [managedClusters.data];
       const drClusterAppsMap: DRClusterAppsMap = drClusters.reduce(
         (acc, drCluster) => {
           const clusterName = getName(drCluster);
@@ -56,14 +53,18 @@ export const useSubscriptionParser = (
       );
 
       const processSubscription = (
-        subscriptionResource: any,
+        subscriptionResource: ApplicationDeploymentInfo,
         appNamespace: string
       ) => {
         const { application, subscriptionGroupInfo } =
           subscriptionResource || {};
         subscriptionGroupInfo?.forEach((subscriptionGroup) => {
           const { placementDecision, drInfo } = subscriptionGroup || {};
-          const { drPlacementControl, drPolicy, drCluster } = drInfo || {};
+          const {
+            drPlacementControl,
+            drPolicy,
+            drClusters: currentDrClusters,
+          } = drInfo || {};
           const deploymentClusters = findDeploymentClusters(
             placementDecision,
             drPlacementControl
@@ -77,21 +78,18 @@ export const useSubscriptionParser = (
                 decisionCluster
               );
 
-              const foundManagedCluster = managedClusterList.find(
-                (managedCluster) => getName(managedCluster) === decisionCluster
-              );
-              const managedCluster = Array.isArray(foundManagedCluster)
-                ? foundManagedCluster
-                : [foundManagedCluster];
-
-              subscriptionGroup.managedClusters = managedCluster;
               if (!uniqueAppKeys.has(appKey)) {
                 uniqueAppKeys.add(appKey);
                 drClusterAppsMap[decisionCluster].totalAppCount += 1;
+                drClusterAppsMap[decisionCluster].managedCluster =
+                  managedClusters.data.find(
+                    (managedCluster) =>
+                      getName(managedCluster) === decisionCluster
+                  );
               }
 
-              const drpcSpec = drPlacementControl?.spec ?? {};
-              const drpcStatus = drPlacementControl?.status ?? {};
+              const drpcSpec = drPlacementControl?.spec;
+              const drpcStatus = drPlacementControl?.status;
 
               if (!_.isEmpty(drInfo)) {
                 const protectedApp = {
@@ -107,13 +105,16 @@ export const useSubscriptionParser = (
                       drpcNamespace: getNamespace(drPlacementControl),
                       protectedPVCs:
                         getProtectedPVCsFromDRPC(drPlacementControl),
-                      replicationType: findDRType(drCluster),
+                      replicationType: findDRType(currentDrClusters),
                       syncInterval: drPolicy?.spec?.schedulingInterval,
                       workloadNamespace: appNamespace,
                       failoverCluster: drpcSpec?.failoverCluster,
                       preferredCluster: drpcSpec?.preferredCluster,
                       lastGroupSyncTime: drpcStatus?.lastGroupSyncTime,
                       status: drpcStatus?.phase as DRPC_STATUS,
+                      subscriptions: subscriptionGroup?.subscriptions?.map(
+                        (subs) => getName(subs)
+                      ),
                     },
                   ],
                 };
