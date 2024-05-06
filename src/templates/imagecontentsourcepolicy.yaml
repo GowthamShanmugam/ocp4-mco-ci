@@ -2,8 +2,6 @@ apiVersion: operator.openshift.io/v1alpha1
 kind: ImageContentSourcePolicy
 metadata:
   name: df-repo-v4.16.0
-  resourceVersion: '570722'
-  uid: dea92244-77dd-4b6e-98c8-84683fde76b9
 spec:
   repositoryDigestMirrors:
     - mirrors:
@@ -94,17 +92,8 @@ spec:
         - quay.io/rhceph-dev/odf4-rook-ceph-rhel9-operator
       source: registry.redhat.io/odf4/rook-ceph-rhel9-operator
     - mirrors:
-        - quay.io/rhceph-dev/openshift-ose-csi-external-attacher-rhel8
-      source: registry.redhat.io/openshift4/ose-csi-external-attacher-rhel8
-    - mirrors:
-        - quay.io/rhceph-dev/openshift-ose-csi-external-attacher-rhel8
-      source: registry.redhat.io/openshift4/ose-csi-external-attacher-rhel8
-    - mirrors:
-        - quay.io/rhceph-dev/openshift-ose-csi-external-attacher-rhel8
-      source: registry.redhat.io/openshift4/ose-csi-external-attacher-rhel8
-    - mirrors:
-        - quay.io/rhceph-dev/openshift-ose-csi-external-attacher-rhel8
-      source: registry.redhat.io/openshift4/ose-csi-external-attacher-rhel8
+        - quay.io/rhceph-dev/openshift-ose-csi-external-attacher-rhel9
+      source: registry.redhat.io/openshift4/ose-csi-external-attacher-rhel9
     - mirrors:
         - quay.io/rhceph-dev/openshift-ose-csi-external-attacher
       source: registry.redhat.io/openshift4/ose-csi-external-attacher
@@ -115,53 +104,17 @@ spec:
         - quay.io/rhceph-dev/openshift-ose-csi-external-provisioner
       source: registry.redhat.io/openshift4/ose-csi-external-provisioner
     - mirrors:
-        - quay.io/rhceph-dev/openshift-ose-csi-external-provisioner
-      source: registry.redhat.io/openshift4/ose-csi-external-provisioner
-    - mirrors:
-        - quay.io/rhceph-dev/openshift-ose-csi-external-provisioner
-      source: registry.redhat.io/openshift4/ose-csi-external-provisioner
-    - mirrors:
-        - quay.io/rhceph-dev/openshift-ose-csi-external-provisioner
-      source: registry.redhat.io/openshift4/ose-csi-external-provisioner
-    - mirrors:
         - quay.io/rhceph-dev/openshift-ose-csi-external-resizer
       source: registry.redhat.io/openshift4/ose-csi-external-resizer
     - mirrors:
         - quay.io/rhceph-dev/openshift-ose-csi-external-resizer
       source: registry.redhat.io/openshift4/ose-csi-external-resizer
     - mirrors:
-        - quay.io/rhceph-dev/openshift-ose-csi-external-resizer
-      source: registry.redhat.io/openshift4/ose-csi-external-resizer
-    - mirrors:
-        - quay.io/rhceph-dev/openshift-ose-csi-external-resizer
-      source: registry.redhat.io/openshift4/ose-csi-external-resizer
-    - mirrors:
-        - quay.io/rhceph-dev/openshift-ose-csi-external-resizer
-      source: registry.redhat.io/openshift4/ose-csi-external-resizer
-    - mirrors:
-        - quay.io/rhceph-dev/openshift-ose-csi-external-snapshotter-rhel8
-      source: registry.redhat.io/openshift4/ose-csi-external-snapshotter-rhel8
-    - mirrors:
-        - quay.io/rhceph-dev/openshift-ose-csi-external-snapshotter-rhel8
-      source: registry.redhat.io/openshift4/ose-csi-external-snapshotter-rhel8
-    - mirrors:
-        - quay.io/rhceph-dev/openshift-ose-csi-external-snapshotter-rhel8
-      source: registry.redhat.io/openshift4/ose-csi-external-snapshotter-rhel8
-    - mirrors:
-        - quay.io/rhceph-dev/openshift-ose-csi-external-snapshotter-rhel8
-      source: registry.redhat.io/openshift4/ose-csi-external-snapshotter-rhel8
+        - quay.io/rhceph-dev/openshift-ose-csi-external-snapshotter-rhel9
+      source: registry.redhat.io/openshift4/ose-csi-external-snapshotter-rhel9
     - mirrors:
         - quay.io/rhceph-dev/openshift-ose-csi-external-snapshotter
       source: registry.redhat.io/openshift4/ose-csi-external-snapshotter
-    - mirrors:
-        - quay.io/rhceph-dev/openshift-ose-csi-node-driver-registrar
-      source: registry.redhat.io/openshift4/ose-csi-node-driver-registrar
-    - mirrors:
-        - quay.io/rhceph-dev/openshift-ose-csi-node-driver-registrar
-      source: registry.redhat.io/openshift4/ose-csi-node-driver-registrar
-    - mirrors:
-        - quay.io/rhceph-dev/openshift-ose-csi-node-driver-registrar
-      source: registry.redhat.io/openshift4/ose-csi-node-driver-registrar
     - mirrors:
         - quay.io/rhceph-dev/openshift-ose-csi-node-driver-registrar
       source: registry.redhat.io/openshift4/ose-csi-node-driver-registrar
@@ -187,8 +140,8 @@ spec:
         - quay.io/rhceph-dev/openshift-ose-prometheus
       source: registry.redhat.io/openshift4/ose-prometheus
     - mirrors:
-        - quay.io/rhceph-dev/rhceph
-      source: registry.redhat.io/rhceph/rhceph-6-rhel9
+        - quay.io/rhceph-dev/rhceph/rhceph-7-rhel9
+      source: registry.redhat.io/rhceph/rhceph-7-rhel9
     - mirrors:
         - quay.io/rhceph-dev/rhel9-postgresql-15
       source: registry.redhat.io/rhel9/postgresql-15
