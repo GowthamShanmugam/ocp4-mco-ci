@@ -95,17 +95,17 @@ spec:
         - quay.io/rhceph-dev/openshift-ose-csi-external-attacher-rhel9
       source: registry.redhat.io/openshift4/ose-csi-external-attacher-rhel9
     - mirrors:
-        - quay.io/rhceph-dev/openshift-ose-csi-external-attacher
-      source: registry.redhat.io/openshift4/ose-csi-external-attacher
+        - quay.io/rhceph-dev/openshift-ose-csi-external-attacher-rhel9
+      source: registry.redhat.io/openshift4/ose-csi-external-attacher-rhel9
+    - mirrors:
+        - quay.io/rhceph-dev/openshift-ose-csi-external-provisioner-rhel9
+      source: registry.redhat.io/openshift4/ose-csi-external-provisioner-rhel9
     - mirrors:
         - quay.io/rhceph-dev/openshift-ose-csi-external-provisioner
       source: registry.redhat.io/openshift4/ose-csi-external-provisioner
     - mirrors:
-        - quay.io/rhceph-dev/openshift-ose-csi-external-provisioner
-      source: registry.redhat.io/openshift4/ose-csi-external-provisioner
-    - mirrors:
-        - quay.io/rhceph-dev/openshift-ose-csi-external-resizer
-      source: registry.redhat.io/openshift4/ose-csi-external-resizer
+        - quay.io/rhceph-dev/openshift-ose-csi-external-resizer-rhel9
+      source: registry.redhat.io/openshift4/ose-csi-external-resizer-rhel9
     - mirrors:
         - quay.io/rhceph-dev/openshift-ose-csi-external-resizer
       source: registry.redhat.io/openshift4/ose-csi-external-resizer
@@ -113,23 +113,23 @@ spec:
         - quay.io/rhceph-dev/openshift-ose-csi-external-snapshotter-rhel9
       source: registry.redhat.io/openshift4/ose-csi-external-snapshotter-rhel9
     - mirrors:
-        - quay.io/rhceph-dev/openshift-ose-csi-external-snapshotter
-      source: registry.redhat.io/openshift4/ose-csi-external-snapshotter
+        - quay.io/rhceph-dev/openshift-ose-csi-external-snapshotter-rhel9
+      source: registry.redhat.io/openshift4/ose-csi-external-snapshotter-rhel9
+    - mirrors:
+        - quay.io/rhceph-dev/openshift-ose-csi-node-driver-registrar-rhel9
+      source: registry.redhat.io/openshift4/ose-csi-node-driver-registrar-rhel9
     - mirrors:
         - quay.io/rhceph-dev/openshift-ose-csi-node-driver-registrar
       source: registry.redhat.io/openshift4/ose-csi-node-driver-registrar
     - mirrors:
-        - quay.io/rhceph-dev/openshift-ose-csi-node-driver-registrar
-      source: registry.redhat.io/openshift4/ose-csi-node-driver-registrar
+        - quay.io/rhceph-dev/openshift-ose-kube-rbac-proxy-rhel9
+      source: registry.redhat.io/openshift4/ose-kube-rbac-proxy-rhel9
     - mirrors:
-        - quay.io/rhceph-dev/openshift-ose-kube-rbac-proxy
-      source: registry.redhat.io/openshift4/ose-kube-rbac-proxy
+        - quay.io/rhceph-dev/openshift-ose-oauth-proxy-rhel9
+      source: registry.redhat.io/openshift4/ose-oauth-proxy-rhel9
     - mirrors:
-        - quay.io/rhceph-dev/openshift-ose-oauth-proxy
-      source: registry.redhat.io/openshift4/ose-oauth-proxy
-    - mirrors:
-        - quay.io/rhceph-dev/openshift-ose-prometheus-alertmanager
-      source: registry.redhat.io/openshift4/ose-prometheus-alertmanager
+        - quay.io/rhceph-dev/openshift-ose-prometheus-alertmanager-rhel9
+      source: registry.redhat.io/openshift4/ose-prometheus-alertmanager-rhel9
     - mirrors:
         - quay.io/rhceph-dev/openshift-ose-prometheus-config-reloader-rhel9
       source: registry.redhat.io/openshift4/ose-prometheus-config-reloader-rhel9
@@ -137,8 +137,8 @@ spec:
         - quay.io/rhceph-dev/openshift-ose-prometheus-rhel9-operator
       source: registry.redhat.io/openshift4/ose-prometheus-rhel9-operator
     - mirrors:
-        - quay.io/rhceph-dev/openshift-ose-prometheus
-      source: registry.redhat.io/openshift4/ose-prometheus
+        - quay.io/rhceph-dev/openshift-ose-prometheus-rhel9
+      source: registry.redhat.io/openshift4/ose-prometheus-rhel9
     - mirrors:
         - quay.io/rhceph-dev/rhceph/rhceph-7-rhel9
       source: registry.redhat.io/rhceph/rhceph-7-rhel9
