@@ -20,26 +20,33 @@ def message_reports():
     html_str = os.path.join(MESSENGER_NOTIFICATION_STR)
     with open(os.path.expanduser(html_str)) as fd:
         html_data = fd.read()
+
     send_text_message(
+        title=config.ENV_DATA["cluster_name"],
+        subtitle=get_cluster_role(),
         paragraph=parse_html_for_message(html_data),
         webhook_url=webhook_url,
     )
 
 
-def send_text_message(paragraph: str, webhook_url: str):
+def send_text_message(title: str, subtitle: str, paragraph: str, webhook_url: str):
+    header = {"title": title, "subtitle": subtitle}
     widget = {"textParagraph": {"text": paragraph}}
     cards = [
         {
+            "header": header,
             "sections": [{"widgets": [widget]}],
         },
     ]
     return requests.post(webhook_url, json={"cards": cards})
 
 
-def parse_html_for_message(html_data: str):
-    # cluster name
-    cluster_name = config.ENV_DATA["cluster_name"]
+def get_cluster_role():
+    # cluster role
+    return "ACM Cluster" if config.MULTICLUSTER["acm_cluster"] else "ODF Cluster"
 
+
+def parse_html_for_message(html_data: str):
     # username
     username = config.RUN["username"]
 
@@ -51,11 +58,6 @@ def parse_html_for_message(html_data: str):
     if is_password_exist:
         with open(os.path.expanduser(auth_file_full_path)) as fd:
             password = fd.read()
-
-    # cluster role
-    cluster_role = (
-        "ACM Cluster" if config.MULTICLUSTER["acm_cluster"] else "Non-ACM Cluster"
-    )
 
     # cluster status
     status = (
@@ -87,10 +89,8 @@ def parse_html_for_message(html_data: str):
     # login command
     login_cmd = f"oc login https://api.{config.ENV_DATA['cluster_name']}.{config.ENV_DATA['base_domain']}:6443 -u {username} -p {password}"
 
-    html_data = html_data.replace("{ clustername }", cluster_name)
     html_data = html_data.replace("{ username }", username)
     html_data = html_data.replace("{ password }", password)
-    html_data = html_data.replace("{ cluster_role }", cluster_role)
     html_data = html_data.replace("{ ocp_cluster_status }", status_tag)
     html_data = html_data.replace("{ ocp_cluster_version }", cluster_version)
     html_data = html_data.replace("{ url }", cluster_url_tag)
