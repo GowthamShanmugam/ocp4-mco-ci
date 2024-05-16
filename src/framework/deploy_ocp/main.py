@@ -224,3 +224,5 @@ def main(argv=None):
     deployment.ssl_certificate()
     # Send email report
     deployment.send_email()
+    # Send gchat message
+    deployment.send_message()

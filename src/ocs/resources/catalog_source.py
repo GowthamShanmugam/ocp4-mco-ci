@@ -1,6 +1,7 @@
 """
 CatalogSource related functionalities
 """
+
 import logging
 from time import sleep
 

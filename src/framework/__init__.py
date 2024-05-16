@@ -5,6 +5,7 @@ You can see documentation here:
 https://docs.pytest.org/en/latest/reference.html
 under section PYTEST_DONT_REWRITE
 """
+
 # Use the new python 3.7 dataclass decorator, which provides an object similar
 # to a namedtuple, but allows type enforcement and defining methods.
 import os

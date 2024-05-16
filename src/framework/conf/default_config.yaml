@@ -119,3 +119,7 @@ REPORTING:
     skip_notification: true
     smtp_server: "localhost"
     recipients: '' # comma separated email ids without space
+  messenger:
+    skip_notification: true
+    # You can generate a webhok URL in the "Apps & integrations" page of a gchat space
+    webhook_url: ''

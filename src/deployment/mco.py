@@ -47,15 +47,15 @@ class MCODeployment(OperatorDeployment):
         if custom_channel:
             logger.info(f"Custom channel will be used: {custom_channel}")
             subscription_yaml_data["spec"]["channel"] = custom_channel
-            subscription_yaml_data["spec"][
-                "startingCSV"
-            ] = package_manifest.get_current_csv(channel=custom_channel)
+            subscription_yaml_data["spec"]["startingCSV"] = (
+                package_manifest.get_current_csv(channel=custom_channel)
+            )
         else:
             logger.info(f"Default channel will be used: {default_channel}")
             subscription_yaml_data["spec"]["channel"] = default_channel
-            subscription_yaml_data["spec"][
-                "startingCSV"
-            ] = package_manifest.get_current_csv(channel=default_channel)
+            subscription_yaml_data["spec"]["startingCSV"] = (
+                package_manifest.get_current_csv(channel=default_channel)
+            )
         if config.DEPLOYMENT.get("stage"):
             subscription_yaml_data["spec"]["source"] = constants.OPERATOR_SOURCE_NAME
         subscription_manifest = tempfile.NamedTemporaryFile(

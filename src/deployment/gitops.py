@@ -33,10 +33,10 @@ class GitopsDeployment(OperatorDeployment):
         package_manifest = PackageManifest(
             resource_name=constants.GITOPS_OPERATOR_NAME,
         )
-        gitops_subscription_yaml_data["spec"][
-            "startingCSV"
-        ] = package_manifest.get_current_csv(
-            channel="latest", csv_pattern=constants.GITOPS_OPERATOR_NAME
+        gitops_subscription_yaml_data["spec"]["startingCSV"] = (
+            package_manifest.get_current_csv(
+                channel="latest", csv_pattern=constants.GITOPS_OPERATOR_NAME
+            )
         )
         gitops_subscription_manifest = tempfile.NamedTemporaryFile(
             mode="w+", prefix="gitops_subscription_manifest", delete=False

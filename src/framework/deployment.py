@@ -16,10 +16,12 @@ from src.framework.logger_factory import set_log_record_factory
 from src.utility.constants import LOG_FORMAT
 from src.utility.utils import (
     is_cluster_running,
-    email_reports,
     get_non_acm_cluster_config,
     get_kube_config_path,
 )
+from src.utility.email import email_reports
+from src.utility.messenger import message_reports
+
 
 log = logging.getLogger(__name__)
 current_factory = logging.getLogRecordFactory()
@@ -269,4 +271,17 @@ class Deployment(object):
                 email_reports()
             else:
                 log.warning("Email notification will be skipped")
+        framework.config.switch_default_cluster_ctx()
+
+    def send_message(self):
+        # send gchat message
+        for i in range(framework.config.nclusters):
+            framework.config.switch_ctx(i)
+            skip_notification = framework.config.REPORTING["messenger"][
+                "skip_notification"
+            ]
+            if not skip_notification:
+                message_reports()
+            else:
+                log.warning("Gchat notification will be skipped")
         framework.config.switch_default_cluster_ctx()

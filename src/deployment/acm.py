@@ -148,10 +148,10 @@ class ACMDeployment(OperatorDeployment):
             constants.ACM_HUB_SUBSCRIPTION_YAML
         )
         acm_hub_subscription_yaml_data["spec"]["channel"] = channel
-        acm_hub_subscription_yaml_data["spec"][
-            "startingCSV"
-        ] = package_manifest.get_current_csv(
-            channel=channel, csv_pattern=constants.ACM_HUB_OPERATOR_NAME
+        acm_hub_subscription_yaml_data["spec"]["startingCSV"] = (
+            package_manifest.get_current_csv(
+                channel=channel, csv_pattern=constants.ACM_HUB_OPERATOR_NAME
+            )
         )
 
         acm_hub_subscription_manifest = tempfile.NamedTemporaryFile(

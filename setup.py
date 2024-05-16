@@ -17,7 +17,6 @@ setup(
         "pyyaml>=4.2b1",
         "bs4==0.0.1",
         "jinja2==3.0.3",
-        "pyyaml>=4.2b1",
         "openshift==0.11.2",
         "requests==2.23.0",
         "bs4==0.0.1",

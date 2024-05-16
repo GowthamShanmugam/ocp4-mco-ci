@@ -16,3 +16,4 @@ ENV_DATA:
 REPORTING:
   email:
     skip_notification: false
+    

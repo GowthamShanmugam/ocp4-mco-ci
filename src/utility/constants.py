@@ -25,6 +25,8 @@ AWS_IAM_POLICY_JSON = os.path.join(TEMPLATE_DIR, "aws-iam-policy.json")
 STORAGE_CLUSTER_YAML = os.path.join(TEMPLATE_DIR, "storage-cluster.yaml")
 SSL_CERTIFICATE_YAML = os.path.join(TEMPLATE_DIR, "ssl-certificate.yaml")
 NAMESPACE_TEMPLATE = os.path.join(TEMPLATE_DIR, "namespace.yaml")
+MESSENGER_NOTIFICATION_STR = os.path.join(TEMPLATE_DIR, "result-messenger-template.txt")
+
 
 # Operators
 OPERATOR_INTERNAL_SELECTOR = "ocs-operator-internal=true"
