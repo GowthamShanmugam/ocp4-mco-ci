@@ -66,6 +66,7 @@ def init_ocp4mcoci_conf(arguments=None):
         process_cluster_name_conf(arguments)
         process_cluster_path_conf(arguments)
         process_email_recipients(arguments)
+        process_message_webhook(arguments)
         check_config_requirements()
 
 
@@ -109,6 +110,7 @@ def init_multicluster_ocp4mcoci_conf(args, nclusters):
         process_cluster_name_conf(common_argv + multicluster_conf[index][1:])
         process_cluster_path_conf(common_argv + multicluster_conf[index][1:])
         process_email_recipients(common_argv + multicluster_conf[index][1:])
+        process_message_webhook(common_argv + multicluster_conf[index][1:])
         check_config_requirements()
     # Set context to default_cluster_context_index
     framework.config.switch_default_cluster_ctx()
@@ -196,9 +198,26 @@ def process_log_level_arg(arguments):
 
 def process_email_recipients(arguments):
     parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument("--email-ids", default="INFO", help="recipient email ids")
+    parser.add_argument(
+        "--email-ids",
+        default=framework.config.REPORTING["email"]["recipients"],
+        help="recipient email ids",
+    )
     args, _ = parser.parse_known_args(args=arguments)
     framework.config.update({"REPORTING": {"email": {"recipients": args.email_ids}}})
+
+
+def process_message_webhook(arguments):
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument(
+        "--webhook-url",
+        default=framework.config.REPORTING["messenger"]["webhook_url"],
+        help="webhok URL of a gchat space",
+    )
+    args, _ = parser.parse_known_args(args=arguments)
+    framework.config.update(
+        {"REPORTING": {"messenger": {"webhook_url": args.webhook_url}}}
+    )
 
 
 def main(argv=None):

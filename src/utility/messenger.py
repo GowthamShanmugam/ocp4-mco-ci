@@ -9,14 +9,20 @@ Ref:
 
 import os
 import requests
+import logging
 
 from src.framework import config
 from src.utility.constants import MESSENGER_NOTIFICATION_STR
 from src.utility.utils import is_cluster_running, get_ocp_version
 
+logger = logging.getLogger(__name__)
+
 
 def message_reports():
     webhook_url = config.REPORTING["messenger"]["webhook_url"]
+    if webhook_url == "":
+        logger.warning("No webhook rul found, Skipping gchat message notification !")
+        return
     html_str = os.path.join(MESSENGER_NOTIFICATION_STR)
     with open(os.path.expanduser(html_str)) as fd:
         html_data = fd.read()
