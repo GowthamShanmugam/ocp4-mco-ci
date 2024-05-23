@@ -26,6 +26,20 @@ source <path/to/.venv>/bin/activate
 3. Build OCP4MCO-CI: `python setup.py  build`
 3. Install OCP4MCO-CI: `python setup.py  install`
 
+## Scheduler Configuration
+
+If you want to run the scheduler scripts (like `scripts/deploy-uk-ocp.py`), follow these steps:
+
+* Create the `env.yaml` file from the sample file and set the environment variables:
+```
+cp ./config/env.yaml.sample ./config/env.yaml
+```
+
+* Create the ocp config file (required to set the `ocp_config` env. variable) from a sample file and customize it:
+```
+cp ./samples/deploy_ocp_cluster/override_config.yaml ./config/ocp_config.yaml
+```
+
 ## Usage
 For full usage run: `deploy-ocp --help`
 

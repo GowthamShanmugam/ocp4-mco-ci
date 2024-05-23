@@ -19,6 +19,7 @@ setup(
         "jinja2==3.0.3",
         "openshift==0.11.2",
         "requests==2.23.0",
+        "schedule==1.2.1",
         "bs4==0.0.1",
         "semantic-version==2.8.5",
         "boto3~=1.17.78",
