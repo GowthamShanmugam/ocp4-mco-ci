@@ -17,7 +17,7 @@ def job():
     try:
         print("executing")
         suffix = get_suffix()
-        os.system(f"cleanup-ocp --cluster-paths /tmp/drcluster1-{suffix} /tmp/drcluster2-{suffix}  --is-managed-cluster True")
+        os.system(f"cleanup-ocp --cluster-paths /tmp/dr1-{suffix} /tmp/dr2-{suffix}  --is-managed-cluster True")
     except Exception:
         pass
 

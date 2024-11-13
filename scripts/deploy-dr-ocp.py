@@ -17,8 +17,8 @@ def job():
     try:
         print("executing")
         suffix = get_suffix()
-        deploy_cmd = (f"deploy-ocp multicluster 2 --cluster1 --cluster-name drcluster1-{suffix} --cluster-path /tmp/drcluster1-{suffix} --ocp4mcoci-conf {environment['ocp_config']} "
-            f"--cluster2 --cluster-name drcluster2-{suffix} --cluster-path /tmp/drcluster2-{suffix}  --ocp4mcoci-conf --ocp4mcoci-conf {environment['ocp_hub_config']}"
+        deploy_cmd = (f"deploy-ocp multicluster 2 --cluster1 --cluster-name dr1-{suffix} --cluster-path /tmp/dr1-{suffix} --ocp4mcoci-conf {environment['ocp_config']} "
+            f"--cluster2 --cluster-name dr2-{suffix} --cluster-path /tmp/dr2-{suffix} --ocp4mcoci-conf {environment['ocp_hub_config']}"
         )
         if 'webhook_url' in environment:
             deploy_cmd += f" --webhook-url '{environment['webhook_url']}'"
