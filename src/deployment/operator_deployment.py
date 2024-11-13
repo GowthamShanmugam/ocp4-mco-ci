@@ -39,10 +39,10 @@ def get_and_apply_icsp_from_catalog(image, apply=True, insecure=False):
 
     icsp_file_location = "/icsp.yaml"
     icsp_file_dest_dir = os.path.join(
-        config.ENV_DATA["cluster_path"], f"icsp-{config.RUN['run_id']}"
+        config.ENV_DATA["cluster_path"], f"icsp-{config.run_id}"
     )
     icsp_file_dest_location = os.path.join(icsp_file_dest_dir, "icsp.yaml")
-    pull_secret_path = os.path.join(constants.DATA_DIR, "pull-secret")
+    pull_secret_path = os.path.join(constants.TOP_DIR, "data", "pull-secret")
     create_directory_path(icsp_file_dest_dir)
     cmd = (
         f"oc image extract --filter-by-os linux/amd64 --registry-config {pull_secret_path} "
@@ -58,7 +58,7 @@ def get_and_apply_icsp_from_catalog(image, apply=True, insecure=False):
     # make icsp name unique - append run_id
     with open(icsp_file_dest_location) as f:
         icsp_content = yaml.safe_load(f)
-    icsp_content["metadata"]["name"] += f"-{config.RUN['run_id']}"
+    icsp_content["metadata"]["name"] += f"-{config.run_id}"
     with open(icsp_file_dest_location, "w") as f:
         yaml.dump(icsp_content, f)
     if apply:
@@ -85,15 +85,13 @@ class OperatorDeployment(object):
             image (str): Image of ocs registry.
             ignore_upgrade (bool): Ignore upgrade parameter.
         """
-        image = image or config.ENV_DATA.get("ocs_registry_image", "")
-        resource_kind = constants.SUBSCRIPTION
-        catalog_obj = ocp.OCP(
-            name=constants.OPERATOR_CATALOG_SOURCE_NAME,
-            kind=resource_kind,
-            namespace=self.namespace,
-        )
+        imagePath = image or config.ENV_DATA.get("ocs_registry_image", "")
+        catalog_obj = CatalogSource(
+            resource_name=constants.OPERATOR_CATALOG_SOURCE_NAME,
+            namespace=constants.MARKETPLACE_NAMESPACE,
+        ).get()
         # If the catalog already exists with the same image, skip creating it.
-        if catalog_obj["spec"]["image"] == image:
+        if catalog_obj["spec"]["image"] == imagePath:
             return
         # Because custom catalog source will be called: redhat-operators, we need to disable
         # default sources. This should not be an issue as OCS internal registry images
@@ -103,7 +101,7 @@ class OperatorDeployment(object):
             get_kube_config_path(config.ENV_DATA["cluster_path"]),
         )
         logger.info("Adding CatalogSource")
-        image_and_tag = image.rsplit(":", 1)
+        image_and_tag = imagePath.rsplit(":", 1)
         image = image_and_tag[0]
         image_tag = image_and_tag[1] if len(image_and_tag) == 2 else None
         catalog_source_data = templating.load_yaml(constants.CATALOG_SOURCE_YAML)
@@ -120,7 +118,7 @@ class OperatorDeployment(object):
                 "image"
             ] = f"{image}:{image_tag if image_tag else 'latest'}"
         # apply icsp
-        get_and_apply_icsp_from_catalog(image=image, insecure=True)
+        get_and_apply_icsp_from_catalog(image=imagePath, insecure=True)
         catalog_source_manifest = tempfile.NamedTemporaryFile(
             mode="w+", prefix="catalog_source_manifest", delete=False
         )
