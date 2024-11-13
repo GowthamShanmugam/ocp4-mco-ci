@@ -37,7 +37,6 @@ OPENSHIFT_OPERATORS = "openshift-operators"
 ACM_OPERATOR_NAMESPACE = "open-cluster-management"
 OCS_PLUGIN_NAME = "odf-console"
 MCO_PLUGIN_NAME = "odf-multicluster-console"
-ODF_ICSP_YAML = os.path.join(TEMPLATE_DIR, "imagecontentsourcepolicy.yaml")
 # GitOps
 GITOPS_NAMESPACE = "openshift-gitops"
 GITOPS_OPERATOR_NAME = "openshift-gitops-operator"
