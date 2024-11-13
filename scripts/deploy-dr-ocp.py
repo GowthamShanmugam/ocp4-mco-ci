@@ -17,14 +17,14 @@ def job():
     try:
         print("executing")
         suffix = get_suffix()
-        deploy_cmd = (f"deploy-ocp multicluster 2 --cluster1 --cluster-name dr1-{suffix} --cluster-path /tmp/dr1-{suffix} --ocp4mcoci-conf {environment['ocp_config']} "
-            f"--cluster2 --cluster-name dr2-{suffix} --cluster-path /tmp/dr2-{suffix} --ocp4mcoci-conf {environment['ocp_hub_config']}"
-        )
+        multicluster_cmd =  "deploy-ocp multicluster 2"
         if 'webhook_url' in environment:
-            deploy_cmd += f" --webhook-url '{environment['webhook_url']}'"
+            multicluster_cmd += f" --webhook-url '{environment['webhook_url']}'"
         if 'email_ids' in environment:
-            deploy_cmd += f" --email-ids {environment['email_ids']}"
-
+            multicluster_cmd += f" --email-ids {environment['email_ids']}"
+        deploy_cmd = multicluster_cmd + (f" --cluster1 --cluster-name dr1-{suffix} --cluster-path /tmp/dr1-{suffix} --ocp4mcoci-conf {environment['ocp_config']}"
+            f" --cluster2 --cluster-name dr2-{suffix} --cluster-path /tmp/dr2-{suffix} --ocp4mcoci-conf {environment['ocp_hub_config']}"
+        )
         os.system(deploy_cmd)
     except Exception:
         pass
