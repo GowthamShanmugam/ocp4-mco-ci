@@ -59,11 +59,19 @@ def download_installer(
         # record current working directory and switch to BIN_DIR
         previous_dir = os.getcwd()
         os.chdir(bin_dir)
-        tarball = f"{installer_filename}.tar.gz"
-        url = get_openshift_mirror_url(installer_filename, version)
-        download_file(url, tarball, verify=verify_ssl_certificate)
-        exec_cmd(f"tar xzvf {tarball} {installer_filename}")
-        delete_file(tarball)
+        if "nightly" in version:
+            pull_secret_path = os.path.join(TOP_DIR, "data", "pull-secret")
+            cmd = (
+                f"oc adm release extract --registry-config {pull_secret_path} --command={installer_filename} "
+                f"--to ./ registry.ci.openshift.org/ocp/release:{version}"
+            )
+            exec_cmd(cmd)
+        else:
+            tarball = f"{installer_filename}.tar.gz"
+            url = get_openshift_mirror_url(installer_filename, version)
+            download_file(url, tarball, verify=verify_ssl_certificate)
+            exec_cmd(f"tar xzvf {tarball} {installer_filename}")
+            delete_file(tarball)
         # return to the previous working directory
         os.chdir(previous_dir)
 
