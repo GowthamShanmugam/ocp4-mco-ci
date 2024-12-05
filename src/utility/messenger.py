@@ -16,6 +16,7 @@ from src.framework import config
 from src.utility.constants import (
     GCHAT_MESSENGER_NOTIFICATION_STR,
     SLACK_MESSENGER_NOTIFICATION_STR,
+    DEFUALT_MESSENGER_TYPE,
 )
 from src.utility.utils import is_cluster_running, get_ocp_version
 
@@ -59,12 +60,14 @@ def get_cluster_command(username: str, password: str):
 
 def message_reports():
     webhook_url = config.REPORTING["messenger"]["webhook_url"]
+    type = config.REPORTING.get["messenger"].get("type", DEFUALT_MESSENGER_TYPE)
     if webhook_url == "":
         logger.warning("No webhook rul found, Skipping gchat message notification !")
         return
-
-    # send_gchat_message(webhook_url=webhook_url)
-    send_slack_message(webhook_url=webhook_url)
+    if type == DEFUALT_MESSENGER_TYPE:
+        send_slack_message(webhook_url)
+    else:
+        send_gchat_message(webhook_url)
 
 
 def send_gchat_message(webhook_url: str):
@@ -175,6 +178,13 @@ def parse_json_for_message(json_data: str):
     # login command
     login_cmd = get_cluster_command(username, password)
 
+    # message color
+    color = "#32a852" if status == "Available" else "#ad1721"
+
+    # channel name
+    channel = config.REPORTING["messenger"]["channel"]
+
+    json_data = json_data.replace("{ ocp_cluster_type }", get_cluster_role())
     json_data = json_data.replace("{ username }", username)
     json_data = json_data.replace("{ password }", password)
     json_data = json_data.replace("{ ocp_cluster_status }", status)
@@ -183,7 +193,8 @@ def parse_json_for_message(json_data: str):
     json_data = json_data.replace("{ url }", cluster_url)
     json_data = json_data.replace("{ server }", server_api)
     json_data = json_data.replace("{ login_command }", login_cmd)
-    json_data = json_data.replace("{ slack_channel }", "#odf-cluster-messenger")
-    json_data = json_data.replace("{ color }", "#ad1721")
+    json_data = json_data.replace("{ slack_channel }", channel)
+    json_data = json_data.replace("{ color }", color)
+
     json_object = json.loads(json_data)
     return json_object

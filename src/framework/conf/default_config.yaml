@@ -121,5 +121,9 @@ REPORTING:
     recipients: '' # comma separated email ids without space
   messenger:
     skip_notification: true
+    # gchat or slack
+    type: 'slack'
     # You can generate a webhok URL in the "Apps & integrations" page of a gchat space
     webhook_url: ''
+    # Only required for slack
+    channel: '#odf-cluster-messenger'

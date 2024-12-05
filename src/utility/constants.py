@@ -122,3 +122,6 @@ MACHINECONFIGPOOL = "MachineConfigPool"
 
 # Provisioners
 SUBSCRIPTION_WITH_ACM = "Subscription.operators.coreos.com"
+
+# Messenger types
+DEFUALT_MESSENGER_TYPE = "slack"
