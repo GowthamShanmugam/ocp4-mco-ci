@@ -183,7 +183,7 @@ def parse_json_for_message(json_data: str):
     json_data = json_data.replace("{ url }", cluster_url)
     json_data = json_data.replace("{ server }", server_api)
     json_data = json_data.replace("{ login_command }", login_cmd)
-    json_data = json_data.replace("{ slack_channel }", "odf-cluster-messenger")
+    json_data = json_data.replace("{ slack_channel }", "#odf-cluster-messenger")
     json_data = json_data.replace("{ color }", "#ad1721")
     json_object = json.loads(json_data)
     return json_object
