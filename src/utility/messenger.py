@@ -190,8 +190,10 @@ def parse_json_for_message(json_data: str):
     json_data = json_data.replace("{ ocp_cluster_type }", get_cluster_role())
     json_data = json_data.replace("{ username }", username)
     json_data = json_data.replace("{ password }", password)
+    json_data = json_data.replace(
+        "{ ocp_cluster_name }", config.ENV_DATA["cluster_name"]
+    )
     json_data = json_data.replace("{ ocp_cluster_status }", status)
-    json_data = json_data.replace("{ emoji }", ":fire:")
     json_data = json_data.replace("{ ocp_cluster_version }", cluster_version)
     json_data = json_data.replace("{ url }", cluster_url)
     json_data = json_data.replace("{ server }", server_api)
