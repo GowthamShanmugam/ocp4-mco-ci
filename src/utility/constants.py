@@ -25,7 +25,12 @@ AWS_IAM_POLICY_JSON = os.path.join(TEMPLATE_DIR, "aws-iam-policy.json")
 STORAGE_CLUSTER_YAML = os.path.join(TEMPLATE_DIR, "storage-cluster.yaml")
 SSL_CERTIFICATE_YAML = os.path.join(TEMPLATE_DIR, "ssl-certificate.yaml")
 NAMESPACE_TEMPLATE = os.path.join(TEMPLATE_DIR, "namespace.yaml")
-MESSENGER_NOTIFICATION_STR = os.path.join(TEMPLATE_DIR, "result-messenger-template.txt")
+GCHAT_MESSENGER_NOTIFICATION_STR = os.path.join(
+    TEMPLATE_DIR, "result-gchat-messenger-template.txt"
+)
+SLACK_MESSENGER_NOTIFICATION_STR = os.path.join(
+    TEMPLATE_DIR, "result-slack-messenger-template.json"
+)
 
 
 # Operators
