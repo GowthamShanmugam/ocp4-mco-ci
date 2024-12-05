@@ -126,4 +126,5 @@ REPORTING:
     # You can generate a webhok URL in the "Apps & integrations" page of a gchat space
     webhook_url: ''
     # Only required for slack
-    channel: '#odf-cluster-messenger'
+    username: 'odf-cluster-messenger',
+    channel: '#odf-dev-clusters'

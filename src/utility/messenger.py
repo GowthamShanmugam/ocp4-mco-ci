@@ -60,7 +60,7 @@ def get_cluster_command(username: str, password: str):
 
 def message_reports():
     webhook_url = config.REPORTING["messenger"]["webhook_url"]
-    type = config.REPORTING.get["messenger"].get("type", DEFUALT_MESSENGER_TYPE)
+    type = config.REPORTING["messenger"].get("type", DEFUALT_MESSENGER_TYPE)
     if webhook_url == "":
         logger.warning("No webhook rul found, Skipping gchat message notification !")
         return
@@ -184,6 +184,9 @@ def parse_json_for_message(json_data: str):
     # channel name
     channel = config.REPORTING["messenger"]["channel"]
 
+    # slack username
+    slack_username = config.REPORTING["messenger"]["username"]
+
     json_data = json_data.replace("{ ocp_cluster_type }", get_cluster_role())
     json_data = json_data.replace("{ username }", username)
     json_data = json_data.replace("{ password }", password)
@@ -194,6 +197,7 @@ def parse_json_for_message(json_data: str):
     json_data = json_data.replace("{ server }", server_api)
     json_data = json_data.replace("{ login_command }", login_cmd)
     json_data = json_data.replace("{ slack_channel }", channel)
+    json_data = json_data.replace("{ slack_username }", slack_username)
     json_data = json_data.replace("{ color }", color)
 
     json_object = json.loads(json_data)
