@@ -4,14 +4,14 @@ import time
 import os
 import yaml
 
-with open('./config/env.yaml', 'r') as env_file:
+with open('./config/env.dr.yaml', 'r') as env_file:
     environment = yaml.safe_load(env_file)
 
 def get_suffix():
     nowtime = datetime.datetime.now()
     month = nowtime.strftime("%b").lower()
     day = str(nowtime.day)
-    year = str(nowtime.year)[:2]
+    year = str(nowtime.year)[2:]
     return month + '-' + day + '-' + year 
 
 def job():

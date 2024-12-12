@@ -28,16 +28,31 @@ source <path/to/.venv>/bin/activate
 
 ## Scheduler Configuration
 
-If you want to run the scheduler scripts (like `scripts/deploy-uk-ocp.py`), follow these steps:
+1. If you want to run the scheduler scripts (like `scripts/deploy-uk-ocp.py`), follow these steps:
 
 * Create the `env.yaml` file from the sample file and set the environment variables:
 ```
 cp ./config/env.yaml.sample ./config/env.yaml
 ```
 
-* Create the ocp config file (required to set the `ocp_config` env. variable) from a sample file and customize it:
+* Create the ocp config file (required to set the `ocp_config` env.yaml variable) from a sample file and customize it:
 ```
 cp ./samples/deploy_ocp_cluster/override_config.yaml ./config/ocp_config.yaml
+```
+
+2. If you want to run the scheduler scripts for disaster recovery (like `scripts/deploy-dr-ocp.py`), follow these steps:
+
+* Create the `env.dr.yaml` file from the sample file and set the environment variables:
+```
+cp ./config/env.dr.yaml.sample ./config/env.dr.yaml
+```
+
+* Create ocp config files (required to set the `*_config` env.dr.yaml variables) from a sample files and customize it:
+```
+cp ./samples/2_cluster_acm_setup/override_config.yaml ./config/2_cluster_acm_setup/override_config.yaml
+cp ./samples/2_cluster_acm_setup/override_hub_config.yaml ./config/2_cluster_acm_setup/override_hub_config.yaml
+cp ./samples/configure_submariner/override_config.yaml ./config/configure_submariner/override_config.yaml
+cp ./samples/configure_submariner/override_hub_config.yaml ./config/configure_submariner/override_hub_config.yaml
 ```
 
 ## Usage
@@ -70,6 +85,9 @@ deploy-ocp --cluster-name {cluster_name} --cluster-path {cluster_path} --ocp4mco
 
 Email notification:
 deploy-ocp --cluster-name {cluster_name} --cluster-path {cluster_path} --email-ids {comma seperated mail ids without space}
+
+Slack or Gchat notification (Default is slack message, for gchat override the default cluster config):
+deploy-ocp --cluster-name {cluster_name} --cluster-path {cluster_path} --webhook-url "{webhook url}"
 ```
 ### For multiple cluster deployment:
 ```commandline
@@ -84,6 +102,9 @@ deploy-ocp  multicluster {cluster_count} --email-ids {comma seperated mail ids w
 
 Common argument for all clusters:
 deploy-ocp  multicluster {cluster_count}  --ocp4mcoci-conf {override yaml file}  --email-ids {comma seperated mail ids without space} --cluster1 --cluster-name {cluster_name} --cluster-path {cluster_path} --cluster(n) --cluster-name {cluster_name} --cluster-path {cluster_path}
+
+Slack or Gchat notification (Default is slack message, for gchat override the default cluster config):
+deploy-ocp  multicluster {cluster_count}  --webhook-url "{webhook url}" --cluster1 --cluster-name {cluster_name} --cluster-path {cluster_path}  --cluster(n) --cluster-name {cluster_name} --cluster-path {cluster_path}
 ```
 
 ### Example override yaml file [For more example](https://github.com/GowthamShanmugam/ocp4-mco-ci/tree/master/samples)

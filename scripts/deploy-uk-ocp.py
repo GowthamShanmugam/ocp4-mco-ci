@@ -11,7 +11,7 @@ def get_suffix():
     nowtime = datetime.datetime.now()
     month = nowtime.strftime("%b").lower()
     day = str(nowtime.day)
-    year = str(nowtime.year)[:2]
+    year = str(nowtime.year)[2:]
     return month + '-' + day + '-' + year 
 
 def job():
