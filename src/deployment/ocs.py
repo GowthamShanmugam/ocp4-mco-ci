@@ -157,7 +157,6 @@ class OCSDeployment(OperatorDeployment):
     def deploy_ocs(kubeconfig, skip_cluster_creation):
         # Do not access framework.config directly inside deploy_ocs, it is not thread safe
         if not skip_cluster_creation:
-            exec_cmd(
-                f"oc apply -f {constants.STORAGE_CLUSTER_YAML} --kubeconfig {kubeconfig}"
-            )
+            _ocp = ocp.OCP(cluster_kubeconfig=kubeconfig)
+            _ocp.exec_oc_cmd(f"apply -f {constants.STORAGE_CLUSTER_YAML}")
             OCSDeployment.verify_storage_cluster(kubeconfig)
