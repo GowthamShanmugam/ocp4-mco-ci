@@ -1,6 +1,7 @@
 import os
 import logging
 import tempfile
+import time
 import yaml
 
 from src.framework import config
@@ -16,6 +17,8 @@ from src.utility.utils import (
 from src.utility.timeout import TimeoutSampler
 from src.utility.exceptions import CommandFailed
 from src.ocs import ocp
+from src.ocs.resources.package_manifest import PackageManifest
+from src.ocs.resources.csv import CSV
 
 logger = logging.getLogger(__name__)
 
@@ -74,8 +77,9 @@ def get_and_apply_icsp_from_catalog(image, apply=True, insecure=False):
 
 
 class OperatorDeployment(object):
-    def __init__(self, namespace):
+    def __init__(self, namespace, name):
         self.namespace = namespace
+        self.name = name
 
     def create_catalog_source(self, image=None):
         """
@@ -133,7 +137,7 @@ class OperatorDeployment(object):
         # Wait for catalog source is ready
         catalog_source.wait_for_state("READY")
 
-    def wait_for_subscription(self, subscription_name):
+    def wait_for_subscription(self):
         """
         Wait for the subscription to appear
         Args:
@@ -150,12 +154,12 @@ class OperatorDeployment(object):
                 found_subscription_name = subscription.get("metadata", {}).get(
                     "name", ""
                 )
-                if subscription_name in found_subscription_name:
+                if self.name in found_subscription_name:
                     logger.info(f"Subscription found: {found_subscription_name}")
                     return
-                logger.debug(f"Still waiting for the subscription: {subscription_name}")
+                logger.debug(f"Still waiting for the subscription: {self.name}")
 
-    def wait_for_csv(self, csv_name):
+    def wait_for_csv(self):
         """
         Wait for th e CSV to appear
         Args:
@@ -168,10 +172,10 @@ class OperatorDeployment(object):
             csvs = sample.get().get("items", [])
             for csv in csvs:
                 found_csv_name = csv.get("metadata", {}).get("name", "")
-                if csv_name in found_csv_name:
+                if self.name in found_csv_name:
                     logger.info(f"CSV found: {found_csv_name}")
                     return
-                logger.debug(f"Still waiting for the CSV: {csv_name}")
+                logger.debug(f"Still waiting for the CSV: {self.name}")
 
     def enable_console_plugin(self, name, enable_console=True):
         """
@@ -202,3 +206,56 @@ class OperatorDeployment(object):
                 ocp_obj.exec_oc_cmd(command=patch_cmd)
         else:
             logger.debug(f"Skipping console plugin for {name} operator ")
+
+    def deploy_operator(
+        self,
+        subscription_yaml,
+        ns_yaml=None,
+        channel=None,
+        operator_selector=None,
+        sleep=120,
+    ):
+        """
+        Deploy operator
+        """
+        logger.info("Creating Namespace")
+        # creating Namespace and operator group for cert-manager
+        logger.info("Creating namespace and operator group for Openshift-oadp")
+        if ns_yaml:
+            exec_cmd(f"oc apply -f {ns_yaml}")
+        logger.info("Creating Operator Subscription")
+        subscription_yaml_data = templating.load_yaml(subscription_yaml)
+        package_manifest = PackageManifest(
+            resource_name=self.name,
+            selector=operator_selector,
+        )
+        # Wait for package manifest is ready
+        package_manifest.wait_for_resource(timeout=300)
+        default_channel = package_manifest.get_default_channel()
+        subscription_yaml_data["spec"]["channel"] = (
+            channel if channel else default_channel
+        )
+        subscription_yaml_data["spec"]["startingCSV"] = (
+            package_manifest.get_current_csv(
+                channel=channel if channel else default_channel
+            )
+        )
+        subscription_manifest = tempfile.NamedTemporaryFile(
+            mode="w+", prefix="subscription_manifest", delete=False
+        )
+        templating.dump_data_to_temp_yaml(
+            subscription_yaml_data, subscription_manifest.name
+        )
+        exec_cmd(f"oc apply -f {subscription_manifest.name}")
+        self.wait_for_subscription()
+        logger.info(f"Sleeping for {sleep} seconds after subscribing Operator")
+        time.sleep(sleep)
+        subscriptions = ocp.OCP(
+            kind=constants.SUBSCRIPTION_WITH_ACM,
+            resource_name=self.name,
+            namespace=self.namespace,
+        ).get()
+        csv_name = subscriptions["status"]["currentCSV"]
+        csv = CSV(resource_name=csv_name, namespace=self.namespace)
+        csv.wait_for_phase("Succeeded", timeout=720)
+        logger.info("Operator Deployment Succeeded")

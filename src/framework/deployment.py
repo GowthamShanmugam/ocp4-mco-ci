@@ -21,6 +21,7 @@ from src.utility.utils import (
 )
 from src.utility.email import email_reports
 from src.utility.messenger import message_reports
+from src.deployment.discovered_dr import DiscoveredDR
 
 
 log = logging.getLogger(__name__)
@@ -284,4 +285,17 @@ class Deployment(object):
                 message_reports()
             else:
                 log.warning("Gchat notification will be skipped")
+        framework.config.switch_default_cluster_ctx()
+
+    def configure_discovered_dr(self):
+        try:
+            framework.config.switch_acm_ctx()
+            if framework.config.MULTICLUSTER["configure_discovered_dr"]:
+                log.info("Configuring DR setup for discovered applications")
+                discovered_dr = DiscoveredDR()
+                discovered_dr.deploy()
+            else:
+                log.warning("Discovered DR configuration will be skipped")
+        except Exception:
+            log.error("Unable to configure discovered DR", exc_info=True)
         framework.config.switch_default_cluster_ctx()

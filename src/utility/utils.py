@@ -633,3 +633,16 @@ def get_cluster_metadata(cluster_path):
     except IOError as error:
         logger.error(f"Unable to find infra id {meta_data_json_path}")
         raise error
+
+
+def get_primary_cluster_config():
+    """
+    Get the primary cluster config object in a DR scenario
+
+    Return:
+        framework.config: primary cluster config object from config.clusters
+
+    """
+    for cluster in config.clusters:
+        if cluster.MULTICLUSTER["primary_cluster"]:
+            return cluster

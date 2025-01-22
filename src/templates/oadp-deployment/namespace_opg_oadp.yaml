@@ -1,13 +1,15 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: open-cluster-management
+  name: openshift-adp
 spec: {}
 ---
 apiVersion: operators.coreos.com/v1
 kind: OperatorGroup
 metadata:
-  name: open-cluster-management
+  name: openshift-adp-operatorgroup
+  namespace: openshift-adp
 spec:
+  upgradeStrategy: Default
   targetNamespaces:
-  - open-cluster-management
+        - openshift-adp

@@ -113,6 +113,10 @@ MULTICLUSTER:
   # To control GitOps installation
   skip_gitops_deployment: true
 
+  # Discovered DR
+  # To control discovered DR configuration
+  configure_discovered_dr: false
+
 # Section for reporting configuration
 REPORTING:
   email:
