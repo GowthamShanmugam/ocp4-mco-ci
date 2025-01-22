@@ -95,6 +95,12 @@ class OCP(object):
         self._data = self.get(silent=silent)
         return self._data
 
+    def reload_data(self):
+        """
+        Reloading data of OCP object
+        """
+        self._data = self.get()
+
     def check_name_is_specified(self, resource_name=""):
         """
         Check if the name of the resource is specified in class level and

@@ -241,6 +241,8 @@ def main(argv=None):
     deployment.deploy_gitops()
     # SSL certificate exchange
     deployment.ssl_certificate()
+    # Configure discovered DR
+    deployment.configure_discovered_dr()
     # Send email report
     deployment.send_email()
     # Send gchat message
