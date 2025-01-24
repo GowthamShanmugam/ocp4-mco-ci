@@ -20,12 +20,13 @@ class MCODeployment(OperatorDeployment):
     def deploy_prereq(self):
         # create MCO catalog source
         self.create_catalog_source()
-        # deploy MCO operator
-        self.mco_subscription()
         # enable odf-multicluster-console plugin
         self.enable_console_plugin(
-            constants.MCO_PLUGIN_NAME, config.MULTICLUSTER.get("enable_mco_plugin")
+            name=constants.MCO_PLUGIN_NAME,
+            enable_console=config.MULTICLUSTER.get("enable_mco_plugin"),
         )
+        # deploy MCO operator
+        self.mco_subscription()
 
     def mco_subscription(self):
         logger.info("Deploying MCO operator.")

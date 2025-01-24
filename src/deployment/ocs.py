@@ -123,15 +123,11 @@ class OCSDeployment(OperatorDeployment):
         )
         storage_cluster.wait_for_phase(phase="Ready", timeout=600)
 
-    @retry(CommandFailed, tries=3, delay=30, backoff=1)
-    @staticmethod
-    def deploy_ocs_cluster(kubeconfig):
-        _ocp = ocp.OCP(cluster_kubeconfig=kubeconfig)
-        _ocp.exec_oc_cmd(f"apply -f {constants.STORAGE_CLUSTER_YAML}")
-
     @staticmethod
     def deploy_ocs(kubeconfig, skip_cluster_creation):
         # Do not access framework.config directly inside deploy_ocs, it is not thread safe
         if not skip_cluster_creation:
-            OCSDeployment.deploy_ocs_cluster(kubeconfig)
+            logger.info(f"Deploying ocs cluster using {kubeconfig}")
+            _ocp = ocp.OCP(cluster_kubeconfig=kubeconfig)
+            _ocp.exec_oc_cmd(f"apply -f {constants.STORAGE_CLUSTER_YAML}")
             OCSDeployment.verify_storage_cluster(kubeconfig)

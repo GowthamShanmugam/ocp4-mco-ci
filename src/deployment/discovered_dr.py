@@ -90,7 +90,7 @@ class DiscoveredDR(OADPDeployment):
         mirror_peer._has_phase = True
         mirror_peer.get()
         try:
-            mirror_peer.wait_for_phase(phase="ExchangedSecret", timeout=1200)
+            mirror_peer.wait_for_phase(phase="ExchangedSecret", timeout=45)
             logger.info("Mirror peer is in expected phase 'ExchangedSecret'")
         except ResourceWrongStatusException:
             logger.exception("Mirror peer couldn't attain expected phase")
@@ -135,7 +135,7 @@ class DiscoveredDR(OADPDeployment):
         )
         dr_policy_resource.get()
         sample = TimeoutSampler(
-            timeout=600,
+            timeout=180,
             sleep=3,
             func=self._get_status,
             resource_data=dr_policy_resource,
