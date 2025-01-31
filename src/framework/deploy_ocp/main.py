@@ -229,10 +229,10 @@ def main(argv=None):
     deployment.deploy_ocp(log_cli_level)
     # Deploy OCS
     deployment.deploy_ocs(log_cli_level)
-    # Deploy MCO
-    deployment.deploy_mco()
     # Deploy ACM
     deployment.deploy_acm()
+    # Deploy MCO
+    deployment.deploy_mco()
     # Configure submariner
     deployment.configure_submariner()
     # import managed cluster
