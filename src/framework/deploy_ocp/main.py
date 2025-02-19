@@ -229,10 +229,10 @@ def main(argv=None):
     deployment.deploy_ocp(log_cli_level)
     # Deploy OCS
     deployment.deploy_ocs(log_cli_level)
-    # Deploy MCO
-    deployment.deploy_mco()
     # Deploy ACM
     deployment.deploy_acm()
+    # Deploy MCO
+    deployment.deploy_mco()
     # Configure submariner
     deployment.configure_submariner()
     # import managed cluster
@@ -241,6 +241,8 @@ def main(argv=None):
     deployment.deploy_gitops()
     # SSL certificate exchange
     deployment.ssl_certificate()
+    # Configure discovered DR
+    deployment.configure_discovered_dr()
     # Send email report
     deployment.send_email()
     # Send gchat message

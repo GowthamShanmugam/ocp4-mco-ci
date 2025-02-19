@@ -13,3 +13,6 @@ spec:
   - mirrors:
     - registry.redhat.io/openshift4/ose-oauth-proxy
     source: registry.access.redhat.com/openshift4/ose-oauth-proxy
+  - mirrors:
+    - brew.registry.redhat.io
+    source: registry-proxy.engineering.redhat.com

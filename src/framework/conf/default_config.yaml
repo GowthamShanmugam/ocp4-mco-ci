@@ -12,7 +12,7 @@
 # in this RUN section we will keep default parameters for run of ocp4-mco-ci
 RUN:
   bin_dir: './bin'
-  log_level: "INFO"
+  log_level: "DEBUG"
   kubeconfig_location: 'auth/kubeconfig' # relative from cluster_dir
   username: 'kubeadmin' # default user
   password_location: 'auth/kubeadmin-password' # relative from cluster_dir
@@ -112,6 +112,10 @@ MULTICLUSTER:
   # GitOps
   # To control GitOps installation
   skip_gitops_deployment: true
+
+  # Discovered DR
+  # To control discovered DR configuration
+  configure_discovered_dr: false
 
 # Section for reporting configuration
 REPORTING:

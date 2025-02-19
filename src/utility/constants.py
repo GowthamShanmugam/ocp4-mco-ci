@@ -19,7 +19,7 @@ SUBSCRIPTION_ODF_YAML = os.path.join(TEMPLATE_DIR, "subscription_odf.yaml")
 SUBSCRIPTION_MCO_YAML = os.path.join(TEMPLATE_DIR, "subscription_mco.yaml")
 SUBSCRIPTION_YAML = os.path.join(TEMPLATE_DIR, "subscription.yaml")
 MARKETPLACE_NAMESPACE = "openshift-marketplace"
-OLM_YAML = os.path.join(TEMPLATE_DIR, "deploy-with-olm.yaml")
+ODF_OLM_YAML = os.path.join(TEMPLATE_DIR, "deploy-with-olm.yaml")
 MCO_OLM_YAML = os.path.join(TEMPLATE_DIR, "mco-deploy-with-olm.yaml")
 AWS_IAM_POLICY_JSON = os.path.join(TEMPLATE_DIR, "aws-iam-policy.json")
 STORAGE_CLUSTER_YAML = os.path.join(TEMPLATE_DIR, "storage-cluster.yaml")
@@ -42,6 +42,13 @@ OPENSHIFT_OPERATORS = "openshift-operators"
 ACM_OPERATOR_NAMESPACE = "open-cluster-management"
 OCS_PLUGIN_NAME = "odf-console"
 MCO_PLUGIN_NAME = "odf-multicluster-console"
+OADP_NAMESPACE = "openshift-adp"
+OADP_OPERATOR_NAME = "redhat-oadp-operator"
+OADP_SUBSCRIPTION_YAML = os.path.join(
+    TEMPLATE_DIR, "oadp-deployment", "subscription.yaml"
+)
+OADP_NS_YAML = os.path.join(TEMPLATE_DIR, "oadp-deployment", "namespace_opg_oadp.yaml")
+
 # GitOps
 GITOPS_NAMESPACE = "openshift-gitops"
 GITOPS_OPERATOR_NAME = "openshift-gitops-operator"
@@ -125,3 +132,12 @@ SUBSCRIPTION_WITH_ACM = "Subscription.operators.coreos.com"
 
 # Messenger types
 DEFUALT_MESSENGER_TYPE = "slack"
+
+# Multicluster related yamls
+MIRROR_PEER_RDR = os.path.join(TEMPLATE_DIR, "mirror_peer_rdr.yaml")
+DR_POLICY_ACM_HUB = os.path.join(TEMPLATE_DIR, "dr_policy_acm_hub.yaml")
+DPA_DISCOVERED_APPS_PATH = os.path.join(
+    TEMPLATE_DIR, "oadp-deployment", "dpa_discovered_apps.yaml"
+)
+DR_RAMEN_HUB_OPERATOR_CONFIG = "ramen-hub-operator-config"
+DR_RAMEN_CONFIG_MANAGER_KEY = "ramen_manager_config.yaml"
