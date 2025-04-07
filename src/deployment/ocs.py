@@ -1,5 +1,4 @@
 import logging
-from packaging import version
 
 from src.ocs import ocp
 from src.framework import config
@@ -130,8 +129,8 @@ class OCSDeployment(OperatorDeployment):
         if not skip_cluster_creation:
             logger.info(f"Deploying ocs cluster using {kubeconfig}")
             ocs_version = get_semantic_ocs_version_from_config()
-            installed_ocs_version = version.parse(ocs_version)
-            required_version = version.parse("4.18")
+            installed_ocs_version = float(ocs_version)
+            required_version = float("4.18")
             storage_cluster_yaml = constants.STORAGE_CLUSTER_YAML_NEW
             if installed_ocs_version < required_version:
                 storage_cluster_yaml = constants.STORAGE_CLUSTER_YAML_OLD

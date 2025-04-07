@@ -2,7 +2,6 @@ import logging
 import tempfile
 import base64
 import yaml
-from packaging import version
 
 from src.framework import config
 from src.deployment.oadp import OADPDeployment
@@ -42,8 +41,8 @@ class DiscoveredDR(OADPDeployment):
         config.switch_acm_ctx()
         # Create mirror peer
         ocs_version = get_semantic_ocs_version_from_config()
-        installed_ocs_version = version.parse(ocs_version)
-        required_version = version.parse("4.19")
+        installed_ocs_version = float(ocs_version)
+        required_version = float("4.19")
         mirror_peer = constants.MIRROR_PEER_RDR_NEW
         if installed_ocs_version < required_version:
             mirror_peer = constants.MIRROR_PEER_RDR_OLD
