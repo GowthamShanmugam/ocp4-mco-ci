@@ -22,7 +22,8 @@ MARKETPLACE_NAMESPACE = "openshift-marketplace"
 ODF_OLM_YAML = os.path.join(TEMPLATE_DIR, "deploy-with-olm.yaml")
 MCO_OLM_YAML = os.path.join(TEMPLATE_DIR, "mco-deploy-with-olm.yaml")
 AWS_IAM_POLICY_JSON = os.path.join(TEMPLATE_DIR, "aws-iam-policy.json")
-STORAGE_CLUSTER_YAML = os.path.join(TEMPLATE_DIR, "storage-cluster.yaml")
+STORAGE_CLUSTER_YAML_OLD = os.path.join(TEMPLATE_DIR, "storage-cluster.yaml")
+STORAGE_CLUSTER_YAML_NEW = os.path.join(TEMPLATE_DIR, "storage-cluster-4.18.yaml")
 SSL_CERTIFICATE_YAML = os.path.join(TEMPLATE_DIR, "ssl-certificate.yaml")
 NAMESPACE_TEMPLATE = os.path.join(TEMPLATE_DIR, "namespace.yaml")
 GCHAT_MESSENGER_NOTIFICATION_STR = os.path.join(
@@ -134,7 +135,8 @@ SUBSCRIPTION_WITH_ACM = "Subscription.operators.coreos.com"
 DEFUALT_MESSENGER_TYPE = "slack"
 
 # Multicluster related yamls
-MIRROR_PEER_RDR = os.path.join(TEMPLATE_DIR, "mirror_peer_rdr.yaml")
+MIRROR_PEER_RDR_OLD = os.path.join(TEMPLATE_DIR, "mirror_peer_rdr.yaml")
+MIRROR_PEER_RDR_NEW = os.path.join(TEMPLATE_DIR, "mirror_peer_rdr_4.19.yaml")
 DR_POLICY_ACM_HUB = os.path.join(TEMPLATE_DIR, "dr_policy_acm_hub.yaml")
 DPA_DISCOVERED_APPS_PATH = os.path.join(
     TEMPLATE_DIR, "oadp-deployment", "dpa_discovered_apps.yaml"

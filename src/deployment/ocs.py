@@ -1,15 +1,16 @@
 import logging
+from packaging import version
 
 from src.ocs import ocp
 from src.framework import config
 from src.utility import constants, defaults
 from src.utility.cmd import exec_cmd
+from src.utility.version import get_semantic_ocs_version_from_config
 
 from src.ocs.resources.package_manifest import get_selector_for_ocs_operator
 from src.ocs.resources.stroage_cluster import StorageCluster
 from src.deployment.operator_deployment import OperatorDeployment
 from src.utility.exceptions import UnavailableResourceException, CommandFailed
-from src.utility.retry import retry
 
 logger = logging.getLogger(__name__)
 
@@ -128,6 +129,12 @@ class OCSDeployment(OperatorDeployment):
         # Do not access framework.config directly inside deploy_ocs, it is not thread safe
         if not skip_cluster_creation:
             logger.info(f"Deploying ocs cluster using {kubeconfig}")
+            ocs_version = get_semantic_ocs_version_from_config()
+            installed_ocs_version = version.parse(ocs_version)
+            required_version = version.parse("4.18")
+            storage_cluster_yaml = constants.STORAGE_CLUSTER_YAML_NEW
+            if installed_ocs_version < required_version:
+                storage_cluster_yaml = constants.STORAGE_CLUSTER_YAML_OLD
             _ocp = ocp.OCP(cluster_kubeconfig=kubeconfig)
-            _ocp.exec_oc_cmd(f"apply -f {constants.STORAGE_CLUSTER_YAML}")
+            _ocp.exec_oc_cmd(f"apply -f {storage_cluster_yaml}")
             OCSDeployment.verify_storage_cluster(kubeconfig)

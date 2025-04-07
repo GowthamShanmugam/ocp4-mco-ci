@@ -10,13 +10,10 @@ spec:
   - clusterName: PLACE_HOLDER
     storageClusterRef:
       name: ocs-storagecluster
-      namespace: openshift-storage
   - clusterName: PLACE_HOLDER
     storageClusterRef:
       name: ocs-storagecluster
-      namespace: openshift-storage
   manageS3: true
   type: async
   schedulingIntervals:
   - 5m
-  - 15m

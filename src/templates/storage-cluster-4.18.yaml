@@ -3,8 +3,6 @@ kind: StorageCluster
 metadata:
   name: ocs-storagecluster
   namespace: openshift-storage
-annotations:
-  ocs.openshift.io/clusterIsDisasterRecoveryTarget: 'true'
 spec:
   storageDeviceSets:
     - count: 1
