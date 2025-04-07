@@ -33,7 +33,13 @@ VERSION_4_9 = get_semantic_version("4.9", True)
 VERSION_4_10 = get_semantic_version("4.10", True)
 VERSION_4_11 = get_semantic_version("4.11", True)
 VERSION_4_12 = get_semantic_version("4.12", True)
-
+VERSION_4_13 = get_semantic_version("4.13", True)
+VERSION_4_14 = get_semantic_version("4.14", True)
+VERSION_4_15 = get_semantic_version("4.15", True)
+VERSION_4_16 = get_semantic_version("4.16", True)
+VERSION_4_17 = get_semantic_version("4.17", True)
+VERSION_4_18 = get_semantic_version("4.18", True)
+VERSION_4_19 = get_semantic_version("4.19", True)
 
 def get_semantic_ocs_version_from_config():
     """

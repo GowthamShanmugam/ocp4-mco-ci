@@ -4,7 +4,10 @@ from src.ocs import ocp
 from src.framework import config
 from src.utility import constants, defaults
 from src.utility.cmd import exec_cmd
-from src.utility.version import get_semantic_ocs_version_from_config
+from src.utility.version import (
+    get_semantic_ocs_version_from_config,
+    VERSION_4_18,
+)
 
 from src.ocs.resources.package_manifest import get_selector_for_ocs_operator
 from src.ocs.resources.stroage_cluster import StorageCluster
@@ -128,11 +131,9 @@ class OCSDeployment(OperatorDeployment):
         # Do not access framework.config directly inside deploy_ocs, it is not thread safe
         if not skip_cluster_creation:
             logger.info(f"Deploying ocs cluster using {kubeconfig}")
-            ocs_version = get_semantic_ocs_version_from_config()
-            installed_ocs_version = float(ocs_version)
-            required_version = float("4.18")
+            odf_running_version = get_semantic_ocs_version_from_config()
             storage_cluster_yaml = constants.STORAGE_CLUSTER_YAML_NEW
-            if installed_ocs_version < required_version:
+            if odf_running_version < VERSION_4_18:
                 storage_cluster_yaml = constants.STORAGE_CLUSTER_YAML_OLD
             _ocp = ocp.OCP(cluster_kubeconfig=kubeconfig)
             _ocp.exec_oc_cmd(f"apply -f {storage_cluster_yaml}")

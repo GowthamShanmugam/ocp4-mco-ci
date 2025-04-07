@@ -12,7 +12,10 @@ from src.utility.utils import (
     get_primary_cluster_config,
     exec_cmd,
 )
-from src.utility.version import get_semantic_ocs_version_from_config
+from src.utility.version import (
+    get_semantic_ocs_version_from_config,
+    VERSION_4_19,
+)
 from src.ocs import ocp
 from src.utility.exceptions import ResourceWrongStatusException, TimeoutExpiredError
 from src.utility.timeout import TimeoutSampler
@@ -40,11 +43,9 @@ class DiscoveredDR(OADPDeployment):
     def _configure_mirror_peer(self):
         config.switch_acm_ctx()
         # Create mirror peer
-        ocs_version = get_semantic_ocs_version_from_config()
-        installed_ocs_version = float(ocs_version)
-        required_version = float("4.19")
+        odf_running_version = get_semantic_ocs_version_from_config()
         mirror_peer = constants.MIRROR_PEER_RDR_NEW
-        if installed_ocs_version < required_version:
+        if odf_running_version < VERSION_4_19:
             mirror_peer = constants.MIRROR_PEER_RDR_OLD
         mirror_peer_data = templating.load_yaml(mirror_peer)
         mirror_peer_yaml = tempfile.NamedTemporaryFile(
