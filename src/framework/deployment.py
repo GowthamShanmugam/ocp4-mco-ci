@@ -49,6 +49,14 @@ class Deployment(object):
     def deploy_ocp(self, log_cli_level):
         # OCP Deployment
         processes = []
+        parallel = False
+        for i in range(framework.config.nclusters):
+            framework.config.switch_ctx(i)
+            if framework.config.MULTICLUSTER["acm_cluster"]:
+                # Enable parallel deployment only if ACM cluster is present and the flag is true
+                parallel = framework.config.MULTICLUSTER.get(
+                    "parallel_ocp_deployment", False
+                )
         for i in range(framework.config.nclusters):
             try:
                 framework.config.switch_ctx(i)
@@ -63,22 +71,32 @@ class Deployment(object):
                         log.info(f"Deploying OCP cluster for {cluster_name}")
                         ocp_deployment = OCPDeployment(cluster_name, cluster_path)
                         ocp_deployment.deploy_prereq()
-                        p = mp.Process(
-                            target=OCPDeployment.deploy_ocp,
-                            args=(
+                        if parallel:
+                            # Prepare for parallel deployment
+                            p = mp.Process(
+                                target=OCPDeployment.deploy_ocp,
+                                args=(
+                                    ocp_deployment.installer_binary_path,
+                                    ocp_deployment.cluster_path,
+                                    log_cli_level,
+                                ),
+                            )
+                            processes.append(p)
+                        else:
+                            # Sequential deployment
+                            OCPDeployment.deploy_ocp(
                                 ocp_deployment.installer_binary_path,
                                 ocp_deployment.cluster_path,
                                 log_cli_level,
-                            ),
-                        )
-                        processes.append(p)
+                            )
                 else:
                     log.warning("OCP deployment will be skipped")
             except Exception as ex:
                 log.error("Unable to deploy OCP cluster !", exc_info=True)
         framework.config.switch_default_cluster_ctx()
-        if len(processes) > 0:
-            [proc.start() for proc in processes]
+        if parallel and len(processes) > 0:
+            for proc in processes:
+                proc.start()
             # complete the processes
             for proc in processes:
                 proc.join()
