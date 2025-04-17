@@ -122,3 +122,21 @@ To send cluster information to email ID’s, postfix should be installed on fedo
     * systemctl enable postfix.service
     * systemctl start postfix.service
 ```
+
+## Logging
+
+### CLI Log Level
+You can control the verbosity of the logs using the `--log-cli-level` argument. This allows you to specify the logging level for the deployment process. The available levels are: `DEBUG`, `INFO`, `WARNING`, `ERROR`, and `CRITICAL`.
+
+#### Example
+```commandline
+deploy-ocp --cluster-name mycluster --cluster-path /path/to/cluster --log-cli-level DEBUG
+```
+This will output detailed debugging information to the console during execution.
+
+### Log File Output
+All logs are also saved to a file for later inspection. The log file is created under a logs/ directory in the format:
+```commandline
+logs/deployment_<YYYYMMDD_HHMMSS>.log
+```
+This helps in tracking logs across multiple deployment runs without overwriting previous logs.
