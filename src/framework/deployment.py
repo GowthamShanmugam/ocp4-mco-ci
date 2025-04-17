@@ -12,7 +12,6 @@ from src.deployment.ssl_certificate import SSLCertificate
 from src.deployment.submariner import Submariner
 from src.deployment.import_managed_cluster import ImportManagedCluster
 from src import framework
-from src.framework.logger_factory import set_log_record_factory
 from src.utility.constants import LOG_FORMAT
 from src.utility.utils import (
     is_cluster_running,
@@ -23,12 +22,7 @@ from src.utility.email import email_reports
 from src.utility.messenger import message_reports
 from src.deployment.discovered_dr import DiscoveredDR
 
-
 log = logging.getLogger(__name__)
-current_factory = logging.getLogRecordFactory()
-handler = logging.StreamHandler(sys.stdout)
-handler.setFormatter(logging.Formatter(LOG_FORMAT))
-log.addHandler(handler)
 
 
 def set_log_level(log_cli_level):
@@ -40,13 +34,22 @@ def set_log_level(log_cli_level):
     level = log_cli_level or "INFO"
     log.setLevel(logging.getLevelName(level))
 
+    level = log_cli_level or "INFO"
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.getLevelName(level))
+
+    # Prevent adding multiple handlers during repeated runs
+    if not root_logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter(LOG_FORMAT))
+        root_logger.addHandler(handler)
+
 
 class Deployment(object):
     def __init__(self):
-        set_log_record_factory()
-        set_log_level(framework.config.RUN["log_level"])
+        pass
 
-    def deploy_ocp(self, log_cli_level):
+    def deploy_ocp(self, log_cli_level="INFO"):
         # OCP Deployment
         processes = []
         parallel = False

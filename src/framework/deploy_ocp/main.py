@@ -4,11 +4,13 @@ import re
 import sys
 import yaml
 import time
+import datetime
 
 from src import framework
 from src.utility.exceptions import UnSupportedPlatformException
 from src.utility import utils
 from src.framework.deployment import Deployment
+from src.framework.logger_factory import setup_logging
 
 
 def check_config_requirements():
@@ -224,6 +226,13 @@ def main(argv=None):
     arguments = argv or sys.argv[1:]
     init_ocp4mcoci_conf(arguments)
     log_cli_level = process_log_level_arg(arguments)
+    log_file_path = f"logs/deployment_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+    setup_logging(log_cli_level, log_file_path)
+
+    # Proceed with deployment steps
+    deployment = Deployment()
+    deployment.deploy_ocp(log_cli_level)
+
     deployment = Deployment()
     # Deploy OCP
     deployment.deploy_ocp(log_cli_level)
