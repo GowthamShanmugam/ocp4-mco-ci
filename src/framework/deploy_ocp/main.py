@@ -4,7 +4,7 @@ import re
 import sys
 import yaml
 import time
-import datetime
+from datetime import datetime
 
 from src import framework
 from src.utility.exceptions import UnSupportedPlatformException
