@@ -1,0 +1,5 @@
+ENV_DATA:
+  skip_ocp_deployment: true
+REPORTING:
+  email:
+    skip_notification: true

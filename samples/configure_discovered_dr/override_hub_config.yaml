@@ -1,0 +1,9 @@
+ENV_DATA:
+  skip_ocp_deployment: true
+MULTICLUSTER:
+  acm_cluster: true
+  primary_cluster: true
+  configure_discovered_dr: true
+REPORTING:
+  email:
+    skip_notification: true

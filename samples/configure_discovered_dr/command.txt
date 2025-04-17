@@ -1,0 +1,1 @@
+deploy-ocp multicluster 2  --email-ids {recipients email id} --cluster1 --cluster-name {cluster1-name} --cluster-path {cluster1-path} --ocp4mcoci-conf samples/configure_discovered_dr/override_config.yaml --cluster2 --cluster-name {hub cluster name} --cluster-path  {hub cluster path}   --ocp4mcoci-conf samples/configure_discovered_dr/override_hub_config.yaml

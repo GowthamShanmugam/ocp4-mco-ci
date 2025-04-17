@@ -72,6 +72,8 @@ ENV_DATA:
 
 # All Multicluster stuff here
 MULTICLUSTER:
+  # OCP clusters should be deployed in parallel
+  parallel_ocp_deployment: true
   # Index of this cluster Config in a list of cluster Configs
   multicluster_index: 0
   # Indicating the current cluster is acm cluster
