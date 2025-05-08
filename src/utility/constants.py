@@ -68,6 +68,9 @@ GITOPS_MANAGEDCLUSTER_SETBINDING_YAML = os.path.join(
 GITOPS_SUBSCRIPTION_YAML = os.path.join(
     TEMPLATE_DIR, "gitops-deployment", "subscription.yaml"
 )
+GITOPS_ROLE_BINDING_YAML = os.path.join(
+    TEMPLATE_DIR, "gitops-deployment", "gitops_role_binding.yaml"
+)
 
 # ACM Hub Parameters
 ACM_HUB_OPERATORGROUP_YAML = os.path.join(

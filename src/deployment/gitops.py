@@ -26,6 +26,10 @@ class GitopsDeployment(OperatorDeployment):
     def gitops_subscription(self):
         logger.info("Deploying GitOps operator.")
         self.deploy_operator(subscription_yaml=constants.GITOPS_SUBSCRIPTION_YAML)
+    
+    def gitops_role_binding(self):
+        logger.info("Creating GitOps cluster role binding.")
+        exec_cmd(f"oc apply -f {constants.GITOPS_ROLE_BINDING_YAML}")
 
     @staticmethod
     def deploy_gitops(log_cli_level="INFO"):
