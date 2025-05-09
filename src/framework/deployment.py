@@ -237,15 +237,19 @@ class Deployment(object):
                 framework.config.switch_ctx(i)
                 if (
                     framework.config.multicluster
+                    and framework.config.get_acm_index() == i
                 ):
                     if not framework.config.MULTICLUSTER["skip_gitops_deployment"]:
                         log.info("Deploying GitOps Operator")
-                        gitops_deployment = GitopsDeployment()
-                        gitops_deployment.deploy_prereq()
-                        if framework.config.get_acm_index() == i:
-                            GitopsDeployment.deploy_gitops()
-                        else:
-                            gitops_deployment.gitops_role_binding()
+                        for cluster in framework.config.clusters:
+                            index = cluster.MULTICLUSTER["multicluster_index"]
+                            framework.config.switch_ctx(index)
+                            gitops_deployment = GitopsDeployment()
+                            gitops_deployment.deploy_prereq()
+                            if framework.config.get_acm_index() == index:
+                                GitopsDeployment.deploy_gitops()
+                            else:
+                                gitops_deployment.gitops_role_binding()
                     else:
                         log.warning("GitOps deployment will be skipped")
             except Exception as ex:
