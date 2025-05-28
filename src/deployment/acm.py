@@ -54,24 +54,40 @@ class ACMDeployment(OperatorDeployment):
         )
         clone_repo(constants.ACM_HUB_UNRELEASED_DEPLOY_REPO, acm_hub_deploy_dir)
 
-        logger.info("Retrieving quay token")
-        docker_config = load_auth_config().get("quay", {}).get("cli_password", {})
-        pw = base64.b64decode(docker_config)
-        pw = pw.decode().replace("quay.io", "quay.io:443").encode()
-        quay_token = base64.b64encode(pw).decode()
+        image_tag = config.MULTICLUSTER.get(
+            "acm_unreleased_image",
+            config.MULTICLUSTER.get("default_acm_unreleased_image"),
+        )
+
         kubeconfig_location = os.path.join(
             config.ENV_DATA["cluster_path"], "auth", "kubeconfig"
         )
 
         logger.info("Setting env vars")
-        env_vars = {
-            "QUAY_TOKEN": quay_token,
-            "COMPOSITE_BUNDLE": "true",
-            "CUSTOM_REGISTRY_REPO": "quay.io:443/acm-d",
-            "DOWNSTREAM": "true",
-            "DEBUG": "true",
-            "KUBECONFIG": kubeconfig_location,
-        }
+        env_vars = {}
+        if "DOWNSTREAM" in image_tag:
+            logger.info("Retrieving quay token")
+            docker_config = load_auth_config().get("quay", {}).get("cli_password", {})
+            pw = base64.b64decode(docker_config)
+            pw = pw.decode().replace("quay.io", "quay.io:443").encode()
+            quay_token = base64.b64encode(pw).decode()
+            env_vars = {
+                "QUAY_TOKEN": quay_token,
+                "COMPOSITE_BUNDLE": "true",
+                "CUSTOM_REGISTRY_REPO": "quay.io:443/acm-d",
+                "DOWNSTREAM": "true",
+                "DEBUG": "true",
+                "KUBECONFIG": kubeconfig_location,
+            }
+        else:
+            env_vars = {
+                "QUAY_TOKEN": "",
+                "COMPOSITE_BUNDLE": "true",
+                "CUSTOM_REGISTRY_REPO": "quay.io/stolostron",
+                "DOWNSTREAM": "false",
+                "DEBUG": "true",
+                "KUBECONFIG": kubeconfig_location,
+            }
         for key, value in env_vars.items():
             if value:
                 os.environ[key] = value
@@ -95,10 +111,6 @@ class ACMDeployment(OperatorDeployment):
         exec_cmd(f"oc apply -f {constants.ACM_HUB_UNRELEASED_ICSP_YAML}")
 
         logger.info("Writing tag data to snapshot.ver")
-        image_tag = config.MULTICLUSTER.get(
-            "acm_unreleased_image",
-            config.MULTICLUSTER.get("default_acm_unreleased_image"),
-        )
         with open(os.path.join(acm_hub_deploy_dir, "snapshot.ver"), "w") as f:
             f.write(image_tag)
 

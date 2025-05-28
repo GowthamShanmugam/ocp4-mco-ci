@@ -10,4 +10,5 @@ metadata:
   name: open-cluster-management
 spec:
   targetNamespaces:
-  - open-cluster-management
+    - open-cluster-management
+  upgradeStrategy: Default
