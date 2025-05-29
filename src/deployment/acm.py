@@ -65,9 +65,9 @@ class ACMDeployment(OperatorDeployment):
 
         logger.info("Setting env vars")
         env_vars = {}
+        docker_config = load_auth_config().get("quay", {}).get("cli_password", {})
         if "DOWNSTREAM" in image_tag:
             logger.info("Retrieving quay token")
-            docker_config = load_auth_config().get("quay", {}).get("cli_password", {})
             pw = base64.b64decode(docker_config)
             pw = pw.decode().replace("quay.io", "quay.io:443").encode()
             quay_token = base64.b64encode(pw).decode()
